@@ -4,7 +4,7 @@
 enum class GameScreen
 {
     MENU,
-    SINGLEPLAYER,
+    GAMEPLAY,
     RULES,
     CREDITS,
     EXIT

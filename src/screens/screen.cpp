@@ -2,5 +2,7 @@
 
 void drawMenu()
 {
-	DrawText("Asteroids", GetScreenWidth() / 2, GetScreenHeight() / 2, 20 , BLACK);
+
+	DrawRectangle(420, 400, 230, 50, RAYWHITE);
+	DrawText("Asteroids", 430, 400, 40 , BLACK);
 }
