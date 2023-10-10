@@ -10,6 +10,14 @@ void runGame()
 
     GameScreen currentScreen = GameScreen::MENU;
 
+    RectangleButton rectangleTitle;
+    RectangleButton rectanglePlay;
+    RectangleButton rectangleRules;
+    RectangleButton rectangleCredits;
+    RectangleButton rectangleExit;
+
+    Vector2 mouse = { static_cast<float>(GetMouseX()), static_cast<float>(GetMouseY()) };
+
     while (!WindowShouldClose())
     {
         BeginDrawing();
@@ -21,9 +29,9 @@ void runGame()
         switch (currentScreen)
         {
         case GameScreen::MENU:
-            if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+            if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && optionsCollision(mouse, rectanglePlay))
             {
-
+                currentScreen = GameScreen::GAMEPLAY;
             }
             break;
         case GameScreen::GAMEPLAY:
@@ -41,7 +49,7 @@ void runGame()
         switch (currentScreen)
         {
         case GameScreen::MENU:
-            drawMenu();
+            drawMenu(rectangleTitle, rectanglePlay, rectangleRules, rectangleCredits, rectangleExit, mouse);
             break;
         case GameScreen::GAMEPLAY:
             break;
@@ -54,8 +62,6 @@ void runGame()
         default:
             break;
         }
-
-        drawMenu();
 
         EndDrawing();
     }
