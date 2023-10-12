@@ -16,7 +16,6 @@ void runGame()
     RectangleButton rectangleCredits;
     RectangleButton rectangleExit;
 
-    Vector2 mouse = { static_cast<float>(GetMouseX()), static_cast<float>(GetMouseY()) };
 
     while (!WindowShouldClose())
     {
@@ -24,19 +23,31 @@ void runGame()
 
         ClearBackground(BLACK);
 
-        //DrawText("Congrats! You created your first window!", 190, 200, 20, LIGHTGRAY);
+        Vector2 mouse = { static_cast<float>(GetMouseX()), static_cast<float>(GetMouseY()) };
 
         switch (currentScreen)
         {
         case GameScreen::MENU:
-            if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && optionsCollision(mouse, rectanglePlay))
+            if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && rectanglePlay.isSelected == true)
             {
                 currentScreen = GameScreen::GAMEPLAY;
+            }
+            if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && rectangleRules.isSelected == true)
+            {
+                currentScreen = GameScreen::RULES;
+            }
+            if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && rectangleCredits.isSelected == true)
+            {
+                currentScreen = GameScreen::CREDITS;
+            }
+            if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && rectangleExit.isSelected == true)
+            {
+                currentScreen = GameScreen::EXIT;
             }
             break;
         case GameScreen::GAMEPLAY:
             break;
-        case GameScreen::RULES:
+        case GameScreen::RULES:       
             break;
         case GameScreen::CREDITS:
             break;
@@ -52,12 +63,16 @@ void runGame()
             drawMenu(rectangleTitle, rectanglePlay, rectangleRules, rectangleCredits, rectangleExit, mouse);
             break;
         case GameScreen::GAMEPLAY:
+            DrawText("GAMEPLAY", GetScreenWidth() / 2, GetScreenHeight() / 2, 30, RAYWHITE);
             break;
         case GameScreen::RULES:
+            DrawText("RULES", GetScreenWidth() / 2, GetScreenHeight() / 2, 30, RAYWHITE);
             break;
         case GameScreen::CREDITS:
+            DrawText("CREDITS", GetScreenWidth() / 2, GetScreenHeight() / 2, 30, RAYWHITE);
             break;
         case GameScreen::EXIT:
+            DrawText("EXIT", GetScreenWidth() / 2, GetScreenHeight() / 2, 30, RAYWHITE);
             break;
         default:
             break;

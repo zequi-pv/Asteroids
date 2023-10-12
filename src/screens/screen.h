@@ -7,6 +7,7 @@ struct RectangleButton
     int rectangleY;
     int rectangleWidth = 230;
     int rectangleHeight = 50;
+    bool isSelected = false;
 };
 
 enum class GameScreen
@@ -18,10 +19,10 @@ enum class GameScreen
     EXIT
 };
 
-void drawMenu(  RectangleButton rectangleTitle,
-                RectangleButton rectanglePlay,
-                RectangleButton rectangleRules,
-                RectangleButton rectangleCredits,
-                RectangleButton rectangleExit, 
-                Vector2 mouse);
+void drawMenu(  RectangleButton& rectangleTitle,
+                RectangleButton& rectanglePlay,
+                RectangleButton& rectangleRules,
+                RectangleButton& rectangleCredits,
+                RectangleButton& rectangleExit,
+                Vector2& mouse);
 bool optionsCollision(Vector2 mouse, RectangleButton rectangle);

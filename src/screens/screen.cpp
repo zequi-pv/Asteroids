@@ -3,13 +3,15 @@
 
 using namespace std;
 
-void drawMenu(	RectangleButton rectangleTitle,
-				RectangleButton rectanglePlay,
-				RectangleButton rectangleRules,
-				RectangleButton rectangleCredits,
-				RectangleButton rectangleExit, 
-				Vector2 mouse)
+void drawMenu(	RectangleButton& rectangleTitle,
+				RectangleButton& rectanglePlay,
+				RectangleButton& rectangleRules,
+				RectangleButton& rectangleCredits,
+				RectangleButton& rectangleExit,
+				Vector2& mouse)
 {
+
+	
 
 	DrawRectangle(rectangleTitle.rectangleX, rectangleTitle.rectangleY = 200, rectangleTitle.rectangleWidth, rectangleTitle.rectangleHeight, GRAY);
 	DrawText("Asteroids", 400, 200, 40, BLACK);
@@ -25,22 +27,25 @@ void drawMenu(	RectangleButton rectangleTitle,
 
 	DrawRectangle(rectangleExit.rectangleX, rectangleExit.rectangleY = 480, rectangleExit.rectangleWidth, rectangleExit.rectangleHeight, GRAY);
 	DrawText("Exit", 400, 480, 40, BLACK);
-	cout << "Menu" << endl;
+
 	if (optionsCollision(mouse, rectanglePlay) )
 	{
-		cout << "Colisiono" << endl;
+		rectanglePlay.isSelected = true;
 		DrawText("Play", 400, 270, 40, RED);
 	}
 	if (optionsCollision(mouse, rectangleRules))
 	{
+		rectangleRules.isSelected = true;
 		DrawText("Rules", 400, 340, 40, RED);
 	}
 	if (optionsCollision(mouse, rectangleCredits))
 	{
+		rectangleCredits.isSelected = true;
 		DrawText("Credits", 400, 410, 40, RED);
 	}
 	if (optionsCollision(mouse, rectangleExit))
 	{
+		rectangleExit.isSelected = true;
 		DrawText("Exit", 400, 480, 40, RED);
 	}
 }
