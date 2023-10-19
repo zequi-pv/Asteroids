@@ -5,6 +5,7 @@ void runGame()
 {
     const int screenWidth = 1024;
     const int screenHeight = 768;
+    bool isGameRunning = true;
 
     InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
 
@@ -17,7 +18,7 @@ void runGame()
     RectangleButton rectangleExit;
 
 
-    while (!WindowShouldClose())
+    while (!WindowShouldClose() && isGameRunning)
     {
         BeginDrawing();
 
@@ -52,6 +53,9 @@ void runGame()
         case GameScreen::CREDITS:
             break;
         case GameScreen::EXIT:
+
+            isGameRunning = false;
+
             break;
         default:
             break;
