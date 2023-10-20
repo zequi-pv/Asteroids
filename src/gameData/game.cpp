@@ -1,5 +1,13 @@
 #include "game.h"
 #include "screens/screen.h"
+#include "elements/spaceship.h"
+#include "raymath.h"
+#include <iostream>
+
+using namespace std;
+
+//static void update(Vector2 mouse, SpaceShip ship);
+static void drawGame(Vector2 mouse, SpaceShip ship);
 
 void runGame()
 {
@@ -17,6 +25,10 @@ void runGame()
     RectangleButton rectangleCredits;
     RectangleButton rectangleExit;
 
+    SpaceShip ship = {};
+
+    initShip(ship);
+
 
     while (!WindowShouldClose() && isGameRunning)
     {
@@ -25,6 +37,8 @@ void runGame()
         ClearBackground(BLACK);
 
         Vector2 mouse = { static_cast<float>(GetMouseX()), static_cast<float>(GetMouseY()) };
+
+        
 
         switch (currentScreen)
         {
@@ -47,6 +61,7 @@ void runGame()
             }
             break;
         case GameScreen::GAMEPLAY:
+            //update(mouse, ship);
             break;
         case GameScreen::RULES:       
             break;
@@ -67,7 +82,8 @@ void runGame()
             drawMenu(rectangleTitle, rectanglePlay, rectangleRules, rectangleCredits, rectangleExit, mouse);
             break;
         case GameScreen::GAMEPLAY:
-            DrawText("GAMEPLAY", GetScreenWidth() / 2, GetScreenHeight() / 2, 30, RAYWHITE);
+            //DrawText("GAMEPLAY", GetScreenWidth() / 2, GetScreenHeight() / 2, 30, RAYWHITE);
+            drawGame(mouse, ship);
             break;
         case GameScreen::RULES:
             DrawText("RULES", GetScreenWidth() / 2, GetScreenHeight() / 2, 30, RAYWHITE);
@@ -86,4 +102,31 @@ void runGame()
     }
 
     CloseWindow();
+}
+//
+//void update(Vector2 mouse, SpaceShip ship)
+//{
+//  /*  Vector2 posMouse = mouse;
+//    Vector2 posShip = getPosition(ship);
+//
+//    Vector2 vectorDirection = Vector2Subtract(posMouse, posShip);
+//
+//    double angle = atan2 (vectorDirection.y , vectorDirection.x);*/
+//}
+
+void drawGame(Vector2 mouse, SpaceShip ship)
+{
+    Rectangle rec = { static_cast<float>(GetScreenWidth() / 2), static_cast<float>(GetScreenHeight() / 2), 20.0f, 100.0f };
+    Vector2 origin = { rec.width / 2, rec.height / 2 };
+
+    Vector2 posMouse = mouse;
+    Vector2 posShip = getPosition(ship);
+    cout << posShip.x << " " << posShip.y << endl;
+
+    Vector2 vectorDirection = Vector2Subtract(posMouse, posShip);
+
+    double angle = atan2(static_cast<double>(vectorDirection.y), static_cast<double>(vectorDirection.x) ) * RAD2DEG + 90;
+
+    cout << ship.pos.x << " " << ship.pos.y << endl;
+    DrawRectanglePro(rec, origin, static_cast<float>(angle), WHITE);
 }

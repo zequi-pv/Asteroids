@@ -4,7 +4,7 @@
 struct RectangleButton
 {
     int rectangleX = 390;
-    int rectangleY;
+    int rectangleY = 0;
     int rectangleWidth = 230;
     int rectangleHeight = 50;
     bool isSelected = false;
