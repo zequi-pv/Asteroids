@@ -12,7 +12,7 @@ static void drawGame(SpaceShip ship, Asteroid asteroid);
 
 void runGame()
 {
-    srand(time(NULL));
+    srand((unsigned int)time(NULL));
     const int screenWidth = 1024;
     const int screenHeight = 768;
     const int maxAsteroids = 10;
@@ -56,18 +56,22 @@ void runGame()
         case GameScreen::MENU:
             if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && rectanglePlay.isSelected == true)
             {
+                cout << "Entro al if de gameplay" << endl;
                 currentScreen = GameScreen::GAMEPLAY;
             }
-            if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && rectangleRules.isSelected == true)
+            else if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && rectangleRules.isSelected == true)
             {
+                cout << "Entro al if de rules" << endl;
                 currentScreen = GameScreen::RULES;
             }
-            if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && rectangleCredits.isSelected == true)
+            else if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && rectangleCredits.isSelected == true)
             {
+                cout << "Entro al if de credits" << endl;
                 currentScreen = GameScreen::CREDITS;
             }
-            if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && rectangleExit.isSelected == true)
+            else if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && rectangleExit.isSelected == true)
             {
+                cout << "Entro al if de exit" << endl;
                 currentScreen = GameScreen::EXIT;
             }
             break;
@@ -117,33 +121,39 @@ void runGame()
 
 void update(Vector2 mouse, SpaceShip& ship, Asteroid asteroids[])
 {
-    float ShipAcceleration = 0;
+   
     float normalizedDirection = 0;
+    double angle = 0;
     Vector2 posMouse = mouse;
     Vector2 posShip = getPosition(ship);
-
+    asteroids;
     Vector2 vectorDirection = Vector2Subtract(posMouse, posShip);
-
-    double angle = atan2(static_cast<double>(vectorDirection.y) , static_cast<double>(vectorDirection.x)) * RAD2DEG + 90;
+    if (vectorDirection.x != 0 || vectorDirection.y != 0)
+    {
+        angle = atan2(static_cast<double>(vectorDirection.y) , static_cast<double>(vectorDirection.x)) * RAD2DEG + 90;
+    }
    
     ship.rotation = static_cast<float>(angle);
 
-    if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
-    {
         normalizedDirection = static_cast<float>(sqrt(pow(vectorDirection.x, 2) + pow(vectorDirection.y, 2)));
 
-        ShipAcceleration += normalizedDirection;
+       
+    if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
+    {
+        ship.ShipAcceleration.x = vectorDirection.x / normalizedDirection;
+        ship.ShipAcceleration.y = vectorDirection.y / normalizedDirection;
+        std::cout << "X:" << ship.ShipAcceleration.x << "Y:" << ship.ShipAcceleration.y << endl;
     }
 
-    ship.pos.x = posShip.x + ShipAcceleration * GetFrameTime();
-    ship.pos.y = posShip.y + ShipAcceleration * GetFrameTime();
+    ship.pos.x += ship.ShipAcceleration.x * GetFrameTime() * 100;
+    ship.pos.y += ship.ShipAcceleration.y * GetFrameTime() * 100;
 }
 
 void drawGame(SpaceShip ship, Asteroid asteroid)
 {
     Rectangle rec = { ship.pos.x, ship.pos.y, ship.size.x, ship.size.y };
     
-    DrawCircle(asteroid.pos.x, asteroid.pos.y, asteroid.radius, RED);
+    DrawCircle(static_cast<int>(asteroid.pos.x), static_cast<int>(asteroid.pos.y), asteroid.radius, RED);
     DrawRectanglePro(rec, ship.origin, ship.rotation, WHITE);
     //DrawTexturePro(ship.texShip, { 0.0f, 0.0f, static_cast<float>(ship.size.y), static_cast<float>(ship.size.y) }, { static_cast<float>(GetScreenWidth() / 2), static_cast<float>(GetScreenHeight() / 2) }, ship.origin, ship.rotation, RAYWHITE);
 }

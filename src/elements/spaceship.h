@@ -8,6 +8,7 @@ struct SpaceShip
 	Vector2 origin;
 	float radius;
 	float rotation;
+	Vector2 ShipAcceleration;
 	//Texture2D texShip;
 };
 

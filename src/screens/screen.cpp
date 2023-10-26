@@ -30,22 +30,30 @@ void drawMenu(	RectangleButton& rectangleTitle,
 
 	if (optionsCollision(mouse, rectanglePlay) )
 	{
+		cout << "Colision Gameplay" << endl;
+		cout << rectanglePlay.isSelected << endl;
 		rectanglePlay.isSelected = true;
 		DrawText("Play", 400, 270, 40, RED);
 	}
 	if (optionsCollision(mouse, rectangleRules))
 	{
+		cout << "Colision Rules" << endl;
 		rectangleRules.isSelected = true;
+		cout << rectangleRules.isSelected << endl;
 		DrawText("Rules", 400, 340, 40, RED);
 	}
 	if (optionsCollision(mouse, rectangleCredits))
 	{
+		cout << "Colision Credits" << endl;
 		rectangleCredits.isSelected = true;
+		cout << rectangleCredits.isSelected << endl;
 		DrawText("Credits", 400, 410, 40, RED);
 	}
 	if (optionsCollision(mouse, rectangleExit))
 	{
+		cout << "Colision Exit" << endl;
 		rectangleExit.isSelected = true;
+		cout << rectangleExit.isSelected << endl;
 		DrawText("Exit", 400, 480, 40, RED);
 	}
 }
