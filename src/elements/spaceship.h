@@ -9,8 +9,9 @@ struct SpaceShip
 	float radius;
 	float rotation;
 	Vector2 ShipAcceleration;
-	//Texture2D texShip;
+	Texture2D texShip;
+	int lives;
 };
 
-void initShip(SpaceShip& ship/*, Texture2D texShip*/);
+void initShip(SpaceShip& ship, Texture2D texShip);
 Vector2 getPosition(SpaceShip ship);

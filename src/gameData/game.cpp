@@ -8,7 +8,7 @@
 using namespace std;
 
 static void update(Vector2 mouse, SpaceShip& ship, Asteroid asteroids[]);
-static void drawGame(SpaceShip ship, Asteroid asteroid);
+static void drawGame(SpaceShip ship, Asteroid asteroids[], int maxAsteroids);
 
 void runGame()
 {
@@ -20,7 +20,7 @@ void runGame()
 
     InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
 
-    Texture2D texTest = LoadTexture("assets/TestShip.png");
+    Texture2D texTest = LoadTexture("assets/MainShip.png");
 
     GameScreen currentScreen = GameScreen::MENU;
 
@@ -34,7 +34,7 @@ void runGame()
     Asteroid asteroid = {};
     Asteroid asteroids[maxAsteroids];
 
-    initShip(ship);
+    initShip(ship, texTest);
 
     for (int i = 0; i < maxAsteroids; i++)
     {
@@ -56,22 +56,18 @@ void runGame()
         case GameScreen::MENU:
             if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && rectanglePlay.isSelected == true)
             {
-                cout << "Entro al if de gameplay" << endl;
                 currentScreen = GameScreen::GAMEPLAY;
             }
             else if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && rectangleRules.isSelected == true)
             {
-                cout << "Entro al if de rules" << endl;
                 currentScreen = GameScreen::RULES;
             }
             else if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && rectangleCredits.isSelected == true)
             {
-                cout << "Entro al if de credits" << endl;
                 currentScreen = GameScreen::CREDITS;
             }
             else if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && rectangleExit.isSelected == true)
             {
-                cout << "Entro al if de exit" << endl;
                 currentScreen = GameScreen::EXIT;
             }
             break;
@@ -97,8 +93,7 @@ void runGame()
             drawMenu(rectangleTitle, rectanglePlay, rectangleRules, rectangleCredits, rectangleExit, mouse);
             break;
         case GameScreen::GAMEPLAY:
-            //DrawText("GAMEPLAY", GetScreenWidth() / 2, GetScreenHeight() / 2, 30, RAYWHITE);
-            drawGame(ship, asteroid);
+            drawGame(ship, asteroids, maxAsteroids);
             break;
         case GameScreen::RULES:
             DrawText("RULES", GetScreenWidth() / 2, GetScreenHeight() / 2, 30, RAYWHITE);
@@ -121,39 +116,42 @@ void runGame()
 
 void update(Vector2 mouse, SpaceShip& ship, Asteroid asteroids[])
 {
-   
-    float normalizedDirection = 0;
-    double angle = 0;
+    float normalizedDirectionAsteroid = 0;
+    float normalizedDirectionShip = 0;
+    double angleShip = 0;
+    double angleAsteroid = 0;
     Vector2 posMouse = mouse;
     Vector2 posShip = getPosition(ship);
     asteroids;
-    Vector2 vectorDirection = Vector2Subtract(posMouse, posShip);
-    if (vectorDirection.x != 0 || vectorDirection.y != 0)
+    Vector2 vectorDirectionShip = Vector2Subtract(posMouse, posShip);
+    if (vectorDirectionShip.x != 0 || vectorDirectionShip.y != 0)
     {
-        angle = atan2(static_cast<double>(vectorDirection.y) , static_cast<double>(vectorDirection.x)) * RAD2DEG + 90;
+        angleShip = atan2(static_cast<double>(vectorDirectionShip.y) , static_cast<double>(vectorDirectionShip.x)) * RAD2DEG + 90;
     }
    
-    ship.rotation = static_cast<float>(angle);
+    ship.rotation = static_cast<float>(angleShip);
 
-        normalizedDirection = static_cast<float>(sqrt(pow(vectorDirection.x, 2) + pow(vectorDirection.y, 2)));
-
+    normalizedDirectionShip = static_cast<float>(sqrt(pow(vectorDirectionShip.x, 2) + pow(vectorDirectionShip.y, 2)));
        
     if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
     {
-        ship.ShipAcceleration.x = vectorDirection.x / normalizedDirection;
-        ship.ShipAcceleration.y = vectorDirection.y / normalizedDirection;
-        std::cout << "X:" << ship.ShipAcceleration.x << "Y:" << ship.ShipAcceleration.y << endl;
+        ship.ShipAcceleration.x += (vectorDirectionShip.x / normalizedDirectionShip) * GetFrameTime();
+        ship.ShipAcceleration.y += (vectorDirectionShip.y / normalizedDirectionShip) * GetFrameTime();
     }
 
     ship.pos.x += ship.ShipAcceleration.x * GetFrameTime() * 100;
     ship.pos.y += ship.ShipAcceleration.y * GetFrameTime() * 100;
 }
 
-void drawGame(SpaceShip ship, Asteroid asteroid)
+void drawGame(SpaceShip ship, Asteroid asteroids[], int maxAsteroids)
 {
     Rectangle rec = { ship.pos.x, ship.pos.y, ship.size.x, ship.size.y };
     
-    DrawCircle(static_cast<int>(asteroid.pos.x), static_cast<int>(asteroid.pos.y), asteroid.radius, RED);
-    DrawRectanglePro(rec, ship.origin, ship.rotation, WHITE);
-    //DrawTexturePro(ship.texShip, { 0.0f, 0.0f, static_cast<float>(ship.size.y), static_cast<float>(ship.size.y) }, { static_cast<float>(GetScreenWidth() / 2), static_cast<float>(GetScreenHeight() / 2) }, ship.origin, ship.rotation, RAYWHITE);
+    for (int i = 0; i < maxAsteroids; i++)
+    {
+        DrawCircle(static_cast<int>(asteroids[i].pos.x), static_cast<int>(asteroids[i].pos.y), asteroids[i].radius, RED);
+
+    }
+    DrawCircle(static_cast<int>(ship.pos.x), static_cast<int>(ship.pos.y), ship.radius, YELLOW);
+    DrawTexturePro(ship.texShip, { 0.0f, 0.0f,static_cast<float>(ship.texShip.width), static_cast<float>(ship.texShip.height) }, { static_cast<float>(ship.pos.x),static_cast<float>(ship.pos.y), static_cast<float>(ship.size.x), static_cast<float>(ship.size.y) }, { static_cast<float>(ship.size.x / 2), static_cast<float>(ship.size.y / 2) }, ship.rotation, RAYWHITE);
 }
