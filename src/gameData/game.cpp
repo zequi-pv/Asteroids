@@ -7,8 +7,9 @@
 
 using namespace std;
 
-static void update(Vector2 mouse, SpaceShip& ship, Asteroid asteroids[]);
+static void update(Vector2 mouse, SpaceShip& ship, Asteroid asteroids[], int maxAsteroids, Vector2 vectorDirectionAsteroid);
 static void drawGame(SpaceShip ship, Asteroid asteroids[], int maxAsteroids);
+static void screenCollision(SpaceShip& ship, Asteroid asteroids[], int maxAsteroids);
 
 void runGame()
 {
@@ -17,6 +18,8 @@ void runGame()
     const int screenHeight = 768;
     const int maxAsteroids = 10;
     bool isGameRunning = true;
+    int randEndX = rand() % 1024 + 1;
+    int randEndY = rand() % 768 + 1;
 
     InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
 
@@ -32,7 +35,14 @@ void runGame()
 
     SpaceShip ship = {};
     Asteroid asteroid = {};
-    Asteroid asteroids[maxAsteroids];
+    Asteroid asteroids[maxAsteroids] = {};
+    Vector2 vectorDirectionAsteroid = {};
+    Vector2 posEnd = { static_cast<float>(randEndX), static_cast<float>(randEndY) };
+
+    for (int i = 0; i < maxAsteroids; i++)
+    {
+        vectorDirectionAsteroid = Vector2Subtract(asteroids[i].pos, posEnd);
+    }
 
     initShip(ship, texTest);
 
@@ -42,6 +52,7 @@ void runGame()
         asteroids[i] = asteroid;
     }
 
+    
 
     while (!WindowShouldClose() && isGameRunning)
     {
@@ -72,7 +83,7 @@ void runGame()
             }
             break;
         case GameScreen::GAMEPLAY:
-            update(mouse, ship, asteroids);
+            update(mouse, ship, asteroids, maxAsteroids, vectorDirectionAsteroid);
             break;
         case GameScreen::RULES:       
             break;
@@ -114,15 +125,25 @@ void runGame()
     CloseWindow();
 }
 
-void update(Vector2 mouse, SpaceShip& ship, Asteroid asteroids[])
+void update(Vector2 mouse, SpaceShip& ship, Asteroid asteroids[], int maxAsteroids, Vector2 vectorDirectionAsteroid)
 {
     float normalizedDirectionAsteroid = 0;
+    double angleAsteroid = 0;
+   
+    for (int i = 0; i < maxAsteroids; i++)
+    {
+        angleAsteroid = atan2(static_cast<double>(vectorDirectionAsteroid.x), static_cast<double>(vectorDirectionAsteroid.y)) * RAD2DEG;
+        asteroids[i].rotation =static_cast<float>(angleAsteroid);
+        normalizedDirectionAsteroid = static_cast<float>(sqrt(pow(vectorDirectionAsteroid.x, 2) + pow(vectorDirectionAsteroid.y, 2)));
+        asteroids[i].pos.x += (vectorDirectionAsteroid.x / normalizedDirectionAsteroid) * GetFrameTime() * 50;
+        asteroids[i].pos.y += (vectorDirectionAsteroid.y / normalizedDirectionAsteroid) * GetFrameTime() * 50;
+    }
+
     float normalizedDirectionShip = 0;
     double angleShip = 0;
-    double angleAsteroid = 0;
     Vector2 posMouse = mouse;
     Vector2 posShip = getPosition(ship);
-    asteroids;
+    
     Vector2 vectorDirectionShip = Vector2Subtract(posMouse, posShip);
     if (vectorDirectionShip.x != 0 || vectorDirectionShip.y != 0)
     {
@@ -141,12 +162,12 @@ void update(Vector2 mouse, SpaceShip& ship, Asteroid asteroids[])
 
     ship.pos.x += ship.ShipAcceleration.x * GetFrameTime() * 100;
     ship.pos.y += ship.ShipAcceleration.y * GetFrameTime() * 100;
+
+    screenCollision(ship, asteroids, maxAsteroids);
 }
 
 void drawGame(SpaceShip ship, Asteroid asteroids[], int maxAsteroids)
 {
-    Rectangle rec = { ship.pos.x, ship.pos.y, ship.size.x, ship.size.y };
-    
     for (int i = 0; i < maxAsteroids; i++)
     {
         DrawCircle(static_cast<int>(asteroids[i].pos.x), static_cast<int>(asteroids[i].pos.y), asteroids[i].radius, RED);
@@ -154,4 +175,46 @@ void drawGame(SpaceShip ship, Asteroid asteroids[], int maxAsteroids)
     }
     DrawCircle(static_cast<int>(ship.pos.x), static_cast<int>(ship.pos.y), ship.radius, YELLOW);
     DrawTexturePro(ship.texShip, { 0.0f, 0.0f,static_cast<float>(ship.texShip.width), static_cast<float>(ship.texShip.height) }, { static_cast<float>(ship.pos.x),static_cast<float>(ship.pos.y), static_cast<float>(ship.size.x), static_cast<float>(ship.size.y) }, { static_cast<float>(ship.size.x / 2), static_cast<float>(ship.size.y / 2) }, ship.rotation, RAYWHITE);
+}
+
+void screenCollision(SpaceShip& ship, Asteroid asteroids[], int maxAsteroids)
+{
+    if (ship.pos.x + ship.radius >= GetScreenWidth())
+    {
+        ship.pos.x = 0 + ship.radius;
+    }
+    else if (ship.pos.x - ship.radius <= 0) 
+    {
+        ship.pos.x = GetScreenWidth() - ship.radius;
+    }
+
+    if (ship.pos.y + ship.radius >= GetScreenHeight())
+    {
+        ship.pos.y = 0 + ship.radius;
+    }
+    else if (ship.pos.y - ship.radius <= 0)
+    {
+        ship.pos.y = GetScreenHeight() - ship.radius;
+    }
+
+    for (int  i = 0; i < maxAsteroids; i++)
+    {
+        if (asteroids[i].pos.x + asteroids[i].radius > GetScreenWidth())
+        {
+            asteroids[i].pos.x = 0 + asteroids[i].radius;
+        }
+        else if (asteroids[i].pos.x - asteroids[i].radius < 0)
+        {
+            asteroids[i].pos.x = GetScreenWidth() - asteroids[i].radius;
+        }
+
+        if (asteroids[i].pos.y + asteroids[i].radius > GetScreenHeight())
+        {
+            asteroids[i].pos.y = 0 + asteroids[i].radius;
+        }
+        else if (asteroids[i].pos.y - asteroids[i].radius < 0)
+        {
+            asteroids[i].pos.y = GetScreenHeight() - asteroids[i].radius;
+        }
+    }
 }
