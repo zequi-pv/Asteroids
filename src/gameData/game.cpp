@@ -240,6 +240,8 @@ void update(Vector2 mouse, SpaceShip& ship, Asteroid bigAsteroids[], Vector2 vec
         if (gameCollision(ship, bigAsteroids, maxBigAsteroids))
         {
             ship.lives--;
+            ship.pos.x = static_cast<float>(GetScreenWidth() / 2);
+            ship.pos.y = static_cast<float>(GetScreenHeight() / 2);
         }
         /*if (gameCollision(ship, bigAsteroids, maxMediumAsteroids))
         {
