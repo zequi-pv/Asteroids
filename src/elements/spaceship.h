@@ -11,6 +11,7 @@ struct SpaceShip
 	Vector2 ShipAcceleration;
 	Texture2D texShip;
 	int lives;
+	int score;
 };
 
 void initShip(SpaceShip& ship, Texture2D texShip);

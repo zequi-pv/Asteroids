@@ -8,6 +8,7 @@ void initShip(SpaceShip& ship, Texture2D texShip)
 	ship.radius = 16.0f;
 	ship.texShip = texShip;
 	ship.lives = 3;
+	ship.score = 0;
 }
 
 Vector2 getPosition(SpaceShip ship)
