@@ -19,10 +19,10 @@ enum class GameScreen
     EXIT
 };
 
-void drawMenu(  RectangleButton& rectangleTitle,
-                RectangleButton& rectanglePlay,
+void drawMenu(  RectangleButton& rectanglePlay,
                 RectangleButton& rectangleRules,
                 RectangleButton& rectangleCredits,
                 RectangleButton& rectangleExit,
-                Vector2& mouse);
+                Vector2& mouse,
+                Texture2D menuBackground);
 bool optionsCollision(Vector2 mouse, RectangleButton rectangle);

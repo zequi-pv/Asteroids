@@ -15,7 +15,7 @@
 using namespace std;
 
 static void update(Vector2 mouse, SpaceShip& ship, Asteroid bigAsteroids[], Vector2 vectorDirectionAsteroid, Bullet bullets[], bool gameOver, bool pause, int maxBigAsteroids/*, int maxMediumAsteroids, int maxSmallAsteroids*/);
-static void drawGame(SpaceShip ship, Asteroid bigAsteroids[], Bullet bullets[], bool pause, int maxBigAsteroids, int maxMediumAsteroids, int maxSmallAsteroids);
+static void drawGame(SpaceShip ship, Asteroid bigAsteroids[], Bullet bullets[], bool pause, int maxBigAsteroids, int maxMediumAsteroids, int maxSmallAsteroids, Texture2D backGround, Texture2D texAsteroid);
 static void screenCollision(SpaceShip& ship, Asteroid asteroids[], int maxAsteroids);
 static bool gameCollision(SpaceShip& ship, Asteroid asteroids[], int maxAsteroids);
 
@@ -33,11 +33,13 @@ void runGame()
 
     InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
 
-    Texture2D texTest = LoadTexture("assets/MainShip.png");
+    Texture2D Ship = LoadTexture("assets/MainShip.png");
+    Texture2D menuBackground = LoadTexture("assets/menuBackGround.png");
+    Texture2D backGround = LoadTexture("assets/backGround.png");
+    Texture2D texAsteroid = LoadTexture("assets/Asteroid.png");
 
     GameScreen currentScreen = GameScreen::MENU;
 
-    RectangleButton rectangleTitle;
     RectangleButton rectanglePlay;
     RectangleButton rectangleRules;
     RectangleButton rectangleCredits;
@@ -57,7 +59,7 @@ void runGame()
     Vector2 vectorDirectionAsteroid = {};
     Vector2 posEnd = { static_cast<float>(randEndX), static_cast<float>(randEndY) };
 
-    initShip(ship, texTest);
+    initShip(ship, Ship);
 
     for (int i = 0; i < maxBigAsteroids; i++)
     {
@@ -139,10 +141,10 @@ void runGame()
         switch (currentScreen)
         {
         case GameScreen::MENU:
-            drawMenu(rectangleTitle, rectanglePlay, rectangleRules, rectangleCredits, rectangleExit, mouse);
+            drawMenu(rectanglePlay, rectangleRules, rectangleCredits, rectangleExit, mouse, menuBackground);
             break;
         case GameScreen::GAMEPLAY:
-            drawGame(ship, bigAsteroids, bullets, pause, maxBigAsteroids, maxMediumAsteroids, maxSmallAsteroids);
+            drawGame(ship, bigAsteroids, bullets, pause, maxBigAsteroids, maxMediumAsteroids, maxSmallAsteroids, backGround, texAsteroid);
             break;
         case GameScreen::RULES:
             DrawText("RULES", GetScreenWidth() / 2, GetScreenHeight() / 2, 30, RAYWHITE);
@@ -258,8 +260,15 @@ void update(Vector2 mouse, SpaceShip& ship, Asteroid bigAsteroids[], Vector2 vec
     
 }
 
-void drawGame(SpaceShip ship, Asteroid bigAsteroids[],Bullet bullets[], bool pause, int maxBigAsteroids, int maxMediumAsteroids, int maxSmallAsteroids)
+void drawGame(SpaceShip ship, Asteroid bigAsteroids[],Bullet bullets[], bool pause, int maxBigAsteroids, int maxMediumAsteroids, int maxSmallAsteroids, Texture2D backGround, Texture2D texAsteroid)
 {
+    DrawTexturePro(backGround,
+        { 0.0f, 0.0f, 1024.0f, 768.0f },
+        { 0.0f, 0.0f, 1024.0f, 768.0f },
+        { 0.0f, 0.0f },
+        0.0f,
+        RAYWHITE);
+
     maxSmallAsteroids;
     maxMediumAsteroids;
     if (pause)
@@ -280,8 +289,19 @@ void drawGame(SpaceShip ship, Asteroid bigAsteroids[],Bullet bullets[], bool pau
     for (int i = 0; i < maxBigAsteroids; i++)
     {
         DrawCircle(static_cast<int>(bigAsteroids[i].pos.x), static_cast<int>(bigAsteroids[i].pos.y), bigAsteroids[i].radius, RED);
-
+        DrawTexturePro( texAsteroid, 
+                        { 0.0f, 0.0f, static_cast<float>(texAsteroid.width), static_cast<float>(texAsteroid.height) },
+                        { bigAsteroids[i].pos.x, bigAsteroids[i].pos.y, bigAsteroids[i].size.x, bigAsteroids[i].size.y },
+                        { bigAsteroids[i].size.x / 2, bigAsteroids[i].size.y / 2 },
+                        bigAsteroids[i].rotation,
+                        RAYWHITE);
     }
+    /*DrawTexturePro(ship.texShip, { 0.0f, 0.0f,static_cast<float>(ship.texShip.width),
+    static_cast<float>(ship.texShip.height) },
+    { static_cast<float>(ship.pos.x),
+    static_cast<float>(ship.pos.y), static_cast<float>(ship.size.x),
+    static_cast<float>(ship.size.y) }, { static_cast<float>(ship.size.x / 2),
+    static_cast<float>(ship.size.y / 2) }, ship.rotation, RAYWHITE);*/
     DrawCircle(static_cast<int>(ship.pos.x), static_cast<int>(ship.pos.y), ship.radius, YELLOW);
     DrawTexturePro(ship.texShip, { 0.0f, 0.0f,static_cast<float>(ship.texShip.width), static_cast<float>(ship.texShip.height) }, { static_cast<float>(ship.pos.x),static_cast<float>(ship.pos.y), static_cast<float>(ship.size.x), static_cast<float>(ship.size.y) }, { static_cast<float>(ship.size.x / 2), static_cast<float>(ship.size.y / 2) }, ship.rotation, RAYWHITE);
 }

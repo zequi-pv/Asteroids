@@ -3,18 +3,26 @@
 
 using namespace std;
 
-void drawMenu(	RectangleButton& rectangleTitle,
-				RectangleButton& rectanglePlay,
+void drawMenu(	RectangleButton& rectanglePlay,
 				RectangleButton& rectangleRules,
 				RectangleButton& rectangleCredits,
 				RectangleButton& rectangleExit,
-				Vector2& mouse)
+				Vector2& mouse,
+				Texture2D menuBackground)
 {
 
-	
-
-	DrawRectangle(rectangleTitle.rectangleX, rectangleTitle.rectangleY = 200, rectangleTitle.rectangleWidth, rectangleTitle.rectangleHeight, GRAY);
-	DrawText("Asteroids", 400, 200, 40, BLACK);
+	DrawTexturePro(	menuBackground, 
+					{ 0.0f, 0.0f, 1024.0f, 768.0f }, 
+					{ 0.0f, 0.0f, 1024.0f, 768.0f },
+					{ 0.0f, 0.0f },
+					0.0f,
+					RAYWHITE);
+	/*DrawTexturePro(ship.texShip, { 0.0f, 0.0f,static_cast<float>(ship.texShip.width), 
+	static_cast<float>(ship.texShip.height) }, 
+	{ static_cast<float>(ship.pos.x),
+	static_cast<float>(ship.pos.y), static_cast<float>(ship.size.x), 
+	static_cast<float>(ship.size.y) }, { static_cast<float>(ship.size.x / 2), 
+	static_cast<float>(ship.size.y / 2) }, ship.rotation, RAYWHITE);*/
 
 	DrawRectangle(rectanglePlay.rectangleX, rectanglePlay.rectangleY = 270, rectanglePlay.rectangleWidth, rectanglePlay.rectangleHeight, GRAY);
 	DrawText("Play", 400, 270, 40, BLACK);
