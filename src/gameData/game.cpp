@@ -597,7 +597,6 @@ void drawGame(SpaceShip ship,
         {
             asteroids[i].size.x = static_cast<float>(texAsteroid.width / 2);
             asteroids[i].size.y = static_cast<float>(texAsteroid.width / 2);
-            DrawCircle(static_cast<int>(asteroids[i].pos.x), static_cast<int>(asteroids[i].pos.y), asteroids[i].radius, RED);
             DrawTexturePro(texAsteroid,
                 { 0.0f, 0.0f, static_cast<float>(texAsteroid.width), static_cast<float>(texAsteroid.height) },
                 { asteroids[i].pos.x, asteroids[i].pos.y, asteroids[i].size.x, asteroids[i].size.y },
@@ -610,7 +609,6 @@ void drawGame(SpaceShip ship,
         {
             asteroids[i].size.x = static_cast<float>(texAsteroid.width / 4);
             asteroids[i].size.y = static_cast<float>(texAsteroid.width / 4);
-            DrawCircle(static_cast<int>(asteroids[i].pos.x), static_cast<int>(asteroids[i].pos.y), asteroids[i].radius, RED);
             DrawTexturePro(texAsteroid,
                 { 0.0f, 0.0f, static_cast<float>(texAsteroid.width), static_cast<float>(texAsteroid.height) },
                 { asteroids[i].pos.x, asteroids[i].pos.y, asteroids[i].size.x, asteroids[i].size.y },
@@ -620,7 +618,6 @@ void drawGame(SpaceShip ship,
         }
     }
 
-    DrawCircle(static_cast<int>(ship.pos.x), static_cast<int>(ship.pos.y), ship.radius, YELLOW);
     DrawTexturePro(ship.texShip, { 0.0f, 0.0f,static_cast<float>(ship.texShip.width), static_cast<float>(ship.texShip.height) }, { static_cast<float>(ship.pos.x),static_cast<float>(ship.pos.y), static_cast<float>(ship.size.x), static_cast<float>(ship.size.y) }, { static_cast<float>(ship.size.x / 2), static_cast<float>(ship.size.y / 2) }, ship.rotation, RAYWHITE);
     
     DrawTexturePro(scoreTex, 
