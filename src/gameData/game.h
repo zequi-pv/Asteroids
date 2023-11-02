@@ -1,4 +1,7 @@
 #pragma once
 #include "raylib.h"
 
-void runGame();
+namespace game
+{
+	extern void runGame();
+}

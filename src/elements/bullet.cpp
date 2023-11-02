@@ -4,7 +4,7 @@ void initBullet(Bullet& bullet)
 {
 	bullet.pos = {};
 	bullet.size = { 10.0f, 10.0f };
-	bullet.speed = { 100.0f, 100.0f };
+	bullet.speed = { 100.0f };
 	bullet.radius = 2.0f;
 	bullet.isActive = false;
 }

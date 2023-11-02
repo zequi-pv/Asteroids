@@ -1,175 +1,303 @@
+#include "game.h"
+
 #include <iostream>
+
 #include "raylib.h"
 #include "raymath.h"
-#include "game.h"
+
 #include "screens/screen.h"
 #include "elements/spaceship.h"
 #include "elements/asteroid.h"
 #include "elements/bullet.h"
 
-#define screenWidth 1024
-#define screenHeight 768
-#define maxBullets 400
-
-
 using namespace std;
 
-static void update(Vector2 mouse, SpaceShip& ship, Asteroid bigAsteroids[], Vector2 vectorDirectionAsteroid, Bullet bullets[], bool gameOver, bool pause, int maxBigAsteroids/*, int maxMediumAsteroids, int maxSmallAsteroids*/);
-static void drawGame(SpaceShip ship, Asteroid bigAsteroids[], Bullet bullets[], bool pause, int maxBigAsteroids, int maxMediumAsteroids, int maxSmallAsteroids, Texture2D backGround, Texture2D texAsteroid);
+static void update(Vector2 mouse,
+    SpaceShip& ship,
+    Asteroid& asteroid,
+    Asteroid asteroids[],
+    Bullet& bullet,
+    Bullet bullets[],
+    bool gameOver,
+    bool& pause,
+    int maxAsteroids,
+    int maxBullets,
+    RectangleButton& rectangleReturn,
+    RectangleButton& rectangleContinue,
+    GameScreen& currentScreen,
+    Texture2D Ship);
+static void drawGame(SpaceShip ship, Asteroid asteroids[], Bullet bullets[], bool pause, int maxAsteroids, Texture2D backGround, Texture2D texAsteroid, int maxBullets, Texture2D livesTex, Texture2D scoreTex, Texture2D paused, RectangleButton& rectangleReturn, RectangleButton& rectangleContinue, Texture2D returnButton, Texture2D returnButtonC, Texture2D continueButton, Texture2D continueButtonC, Vector2& mouse);
 static void screenCollision(SpaceShip& ship, Asteroid asteroids[], int maxAsteroids);
 static bool gameCollision(SpaceShip& ship, Asteroid asteroids[], int maxAsteroids);
+static void shoot(Bullet bullets[], SpaceShip ship, int maxBullets);
+static void bulletCollision(Bullet bullets[], Asteroid asteroids[], int maxAsteroids, int maxBullets, SpaceShip& ship);
+static void asteroidDestroyed(Asteroid asteroids[], int maxAsteroid);
+static void initAll(SpaceShip& ship,
+    Texture2D Ship,
+    Asteroid& asteroid,
+    Asteroid asteroids[],
+    int maxAsteroids,
+    int maxBullets,
+    Bullet& bullet,
+    Bullet bullets[]);
+static void returnToMenu(GameScreen& currentScreen,
+    SpaceShip& ship,
+    Texture2D Ship,
+    Asteroid& asteroid,
+    Asteroid asteroids[],
+    int maxAsteroids,
+    int maxBullets,
+    Bullet& bullet,
+    Bullet bullets[],
+    bool& pause,
+    bool& gameOver);
+static void resetGame(SpaceShip& ship,
+    Texture2D Ship,
+    Asteroid& asteroid,
+    Asteroid asteroids[],
+    int maxAsteroids,
+    int maxBullets,
+    Bullet& bullet,
+    Bullet bullets[],
+    bool& pause,
+    bool& gameOver);
+static void initMatch(SpaceShip& ship,
+    Asteroid& asteroid,
+    Asteroid asteroids[],
+    int maxAsteroids,
+    int maxBullets,
+    Bullet& bullet,
+    Bullet bullets[]);
 
-void runGame()
+namespace game
 {
-    srand((unsigned int)time(NULL));
-    bool isGameRunning = true;
-    int randEndX = GetRandomValue(1, 1024);
-    int randEndY = GetRandomValue(1, 768);
-    const int maxBigAsteroids = 10;
-    const int maxMediumAsteroids = 20;
-    const int maxSmallAsteroids = 40;
-    bool pause = false;
-    bool gameOver = false; 
-
-    InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
-
-    Texture2D Ship = LoadTexture("assets/MainShip.png");
-    Texture2D menuBackground = LoadTexture("assets/menuBackGround.png");
-    Texture2D backGround = LoadTexture("assets/backGround.png");
-    Texture2D texAsteroid = LoadTexture("assets/Asteroid.png");
-
-    GameScreen currentScreen = GameScreen::MENU;
-
-    RectangleButton rectanglePlay;
-    RectangleButton rectangleRules;
-    RectangleButton rectangleCredits;
-    RectangleButton rectangleExit;
-    RectangleButton rectangleReturn;
-    RectangleButton rectangleContinue;
-
-    SpaceShip ship = {};
-    Bullet bullet = {};
-    Bullet bullets[maxBullets] = {};
-    Asteroid bigAsteroid = {};
-    Asteroid mediumAsteroid = {};
-    Asteroid smallAsteroid = {};
-    Asteroid bigAsteroids[maxBigAsteroids] = {};
-    Asteroid mediumAsteroids[maxMediumAsteroids] = {};
-    Asteroid smallAsteroids[maxSmallAsteroids] = {};
-    Vector2 vectorDirectionAsteroid = {};
-    Vector2 posEnd = { static_cast<float>(randEndX), static_cast<float>(randEndY) };
-
-    initShip(ship, Ship);
-
-    for (int i = 0; i < maxBigAsteroids; i++)
+    extern void runGame()
     {
-        initAsteroid(bigAsteroid);
-        bigAsteroids[i] = bigAsteroid;
-    }
+        srand(static_cast<unsigned>(time(NULL)));
+        const int screenWidth = 1024;
+        const int screenHeight = 768;
+        const int maxBullets = 400;
+        bool isGameRunning = true;
+        
+        const int maxAsteroids = 70;
+        bool pause = false;
+        bool gameOver = false;
 
-    for (int i = 0; i < maxMediumAsteroids; i++)
-    {
-        initMedAsteroid(mediumAsteroid);
-        mediumAsteroids[i] = mediumAsteroid;
-    }
+        InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
 
-    for (int i = 0; i < maxMediumAsteroids; i++)
-    {
-        initMedAsteroid(mediumAsteroid);
-        mediumAsteroids[i] = mediumAsteroid;
-    }
+        Texture2D Ship = LoadTexture("res/MainShip.png");
+        Texture2D menuBackground = LoadTexture("res/menuBackGround.png");
+        Texture2D backGround = LoadTexture("res/backGround.png");
+        Texture2D texAsteroid = LoadTexture("res/Asteroid.png");
+        Texture2D rulesBackground = LoadTexture("res/rules.png");
+        Texture2D creditsBackground = LoadTexture("res/creditsBack.png");
+        Texture2D playButton = LoadTexture("res/Buttons/PLAY.png");
+        Texture2D rulesButton = LoadTexture("res/Buttons/rulesB.png");
+        Texture2D creditsButton = LoadTexture("res/Buttons/CREDITS.png");
+        Texture2D exitButton = LoadTexture("res/Buttons/EXIT.png");
+        Texture2D returnButton = LoadTexture("res/Buttons/RETURN.png");
+        Texture2D continueButton = LoadTexture("res/Buttons/CONTINUE.png");
+        Texture2D playButtonC = LoadTexture("res/Buttons/Clicked/plays.png");
+        Texture2D rulesButtonC = LoadTexture("res/Buttons/Clicked/rulesBS.png");
+        Texture2D creditsButtonC = LoadTexture("res/Buttons/Clicked/creditss.png");
+        Texture2D exitButtonC = LoadTexture("res/Buttons/Clicked/exits.png");
+        Texture2D returnButtonC = LoadTexture("res/Buttons/Clicked/returns.png");
+        Texture2D continueButtonC = LoadTexture("res/Buttons/Clicked/continues.png");
+        Texture2D livesTex = LoadTexture("res/Lives.png");
+        Texture2D scoreTex = LoadTexture("res/Score_.png");
+        Texture2D paused = LoadTexture("res/paused.png");
+        Texture2D gameOverScreen = LoadTexture("res/gameover.png");
+        Texture2D gameWinScreen = LoadTexture("res/you_won.png");
+        Texture2D githubB = LoadTexture("res/github.png");
+        Texture2D githubBC = LoadTexture("res/github_gris.png");
+        Texture2D instaB = LoadTexture("res/Instagram.png");
+        Texture2D instaBC = LoadTexture("res/instagram_gris.png");
+        Texture2D itchB = LoadTexture("res/itch.png");
+        Texture2D itchBC = LoadTexture("res/itch_gris.png");
 
-    for (int i = 0; i < maxBigAsteroids; i++)
-    {
-        vectorDirectionAsteroid = Vector2Subtract(bigAsteroids[i].pos, posEnd);
-    }
+        GameScreen currentScreen = GameScreen::MENU;
 
-    for (int i = 0; i < maxBullets; i++)
-    {
-        initBullet(bullet);
-        bullet.pos = { ship.pos.x, ship.pos.y };
-        bullets[i] = bullet;
-    }
-    
+        RectangleButton rectanglePlay;
+        RectangleButton rectangleRules;
+        RectangleButton rectangleCredits;
+        RectangleButton rectangleExit;
+        RectangleButton rectangleReturn;
+        RectangleButton rectangleContinue;
+        RectangleButton itchOne;
+        RectangleButton itchTwo;
+        RectangleButton insta;
+        RectangleButton github;
 
-    while (!WindowShouldClose() && isGameRunning)
-    {
-        SetExitKey(NULL);
+        SpaceShip ship = {};
+        Bullet bullet = {};
+        Bullet bullets[maxBullets] = {};
+        Asteroid asteroid = {};
+        Asteroid asteroids[maxAsteroids] = {};
+        Vector2 vectorDirectionAsteroid = {};
+       
+        initAll(ship, Ship, asteroid, asteroids, maxAsteroids, maxBullets, bullet, bullets);
 
-        BeginDrawing();
-
-        ClearBackground(BLACK);
-
-        Vector2 mouse = { static_cast<float>(GetMouseX()), static_cast<float>(GetMouseY()) };
-
-        switch (currentScreen)
+        while (!WindowShouldClose() && isGameRunning)
         {
-        case GameScreen::MENU:
-            if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && rectanglePlay.isSelected == true)
-            {
-                currentScreen = GameScreen::GAMEPLAY;
-            }
-            else if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && rectangleRules.isSelected == true)
-            {
-                currentScreen = GameScreen::RULES;
-            }
-            else if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && rectangleCredits.isSelected == true)
-            {
-                currentScreen = GameScreen::CREDITS;
-            }
-            else if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && rectangleExit.isSelected == true)
-            {
-                currentScreen = GameScreen::EXIT;
-            }
-            break;
-        case GameScreen::GAMEPLAY:
-            update(mouse, ship, bigAsteroids, vectorDirectionAsteroid, bullets, gameOver, pause, maxBigAsteroids/*, maxMediumAsteroids, maxSmallAsteroids*/);
-            break;
-        case GameScreen::RULES:       
-            break;
-        case GameScreen::CREDITS:
-            break;
-        case GameScreen::EXIT:
+            SetExitKey(NULL);
 
-            isGameRunning = false;
+            BeginDrawing();
 
-            break;
-        default:
-            break;
+            ClearBackground(BLACK);
+
+            Vector2 mouse = { static_cast<float>(GetMouseX()), static_cast<float>(GetMouseY()) };
+
+            switch (currentScreen)
+            {
+            case GameScreen::MENU:
+                if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && rectanglePlay.isSelected == true)
+                {
+                    currentScreen = GameScreen::GAMEPLAY;
+                }
+                else if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && rectangleRules.isSelected == true)
+                {
+                    currentScreen = GameScreen::RULES;
+                }
+                else if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && rectangleCredits.isSelected == true)
+                {
+                    currentScreen = GameScreen::CREDITS;
+                }
+                else if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && rectangleExit.isSelected == true)
+                {
+                    currentScreen = GameScreen::EXIT;
+                }
+                break;
+            case GameScreen::GAMEPLAY:
+                update(mouse, ship, asteroid, asteroids, bullet, bullets, gameOver, pause, maxAsteroids, maxBullets, rectangleReturn, rectangleContinue, currentScreen, Ship);
+                break;
+            case GameScreen::RULES:
+                if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && rectangleReturn.isSelected == true)
+                {
+                    currentScreen = GameScreen::MENU;
+                }
+                break;
+            case GameScreen::CREDITS:
+                if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && rectangleReturn.isSelected == true)
+                {
+                    currentScreen = GameScreen::MENU;
+                }
+                if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && itchOne.isSelected == true)
+                {
+                    OpenURL("https://rayder01.itch.io");
+                }
+                if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && itchTwo.isSelected == true)
+                {
+                    OpenURL("https://fiorellagaston.itch.io");
+                }
+                if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && insta.isSelected == true)
+                {
+                    OpenURL("https://www.instagram.com/fio.gn_/");
+                }
+                if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && github.isSelected == true)
+                {
+                    OpenURL("https://github.com/zequi-pv/Asteroids");
+                }
+                break;
+            case GameScreen::GAMEOVER:
+                if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && rectangleReturn.isSelected == true)
+                {
+                    returnToMenu(currentScreen, ship, Ship, asteroid, asteroids, maxAsteroids, maxBullets, bullet, bullets, pause, gameOver);
+                    currentScreen = GameScreen::MENU;
+
+                }
+                if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && rectangleContinue.isSelected == true)
+                {
+                    currentScreen = GameScreen::GAMEPLAY;
+                    resetGame(ship, Ship, asteroid, asteroids, maxAsteroids, maxBullets, bullet, bullets, pause, gameOver);
+                }
+                break;
+            case GameScreen::GAMEWIN:
+                if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && rectangleReturn.isSelected == true)
+                {
+                    returnToMenu(currentScreen, ship, Ship, asteroid, asteroids, maxAsteroids, maxBullets, bullet, bullets, pause, gameOver);
+                    currentScreen = GameScreen::MENU;
+
+                }
+                if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && rectangleContinue.isSelected == true)
+                {
+                    currentScreen = GameScreen::GAMEPLAY;
+                    resetGame(ship, Ship, asteroid, asteroids, maxAsteroids, maxBullets, bullet, bullets, pause, gameOver);
+                }
+                break;
+            case GameScreen::EXIT:
+
+                isGameRunning = false;
+
+                break;
+            default:
+                break;
+            }
+
+            switch (currentScreen)
+            { 
+            case GameScreen::MENU:
+                drawMenu(rectanglePlay, rectangleRules, rectangleCredits, rectangleExit, mouse, menuBackground, playButton, playButtonC, rulesButton, rulesButtonC, creditsButton, creditsButtonC, exitButton, exitButtonC);
+                break;
+            case GameScreen::GAMEPLAY:
+                drawGame(ship, asteroids, bullets, pause, maxAsteroids, backGround, texAsteroid, maxBullets, livesTex, scoreTex, paused, rectangleReturn, rectangleContinue, returnButton,returnButtonC, continueButton, continueButtonC, mouse);
+                break;
+            case GameScreen::RULES:
+                drawRules(rectangleReturn, mouse, rulesBackground, returnButton, returnButtonC);
+                break;
+            case GameScreen::CREDITS:
+                drawCredits(rectangleReturn, mouse, creditsBackground, returnButton, returnButtonC, githubB, githubBC, instaB, instaBC, itchB, itchBC, itchOne, itchTwo, insta, github);
+                break;
+            case GameScreen::GAMEOVER:
+                drawGameOver(rectangleReturn, rectangleContinue, returnButton, returnButtonC, continueButton, continueButtonC, mouse, gameOverScreen);
+                break;
+            case GameScreen::GAMEWIN:
+                drawGameWin(rectangleReturn, rectangleContinue, returnButton, returnButtonC, continueButton, continueButtonC, mouse, gameWinScreen);
+                break;
+            case GameScreen::EXIT:
+                break;
+            default:
+                break;
+            }
+
+            EndDrawing();
         }
 
-        switch (currentScreen)
-        {
-        case GameScreen::MENU:
-            drawMenu(rectanglePlay, rectangleRules, rectangleCredits, rectangleExit, mouse, menuBackground);
-            break;
-        case GameScreen::GAMEPLAY:
-            drawGame(ship, bigAsteroids, bullets, pause, maxBigAsteroids, maxMediumAsteroids, maxSmallAsteroids, backGround, texAsteroid);
-            break;
-        case GameScreen::RULES:
-            DrawText("RULES", GetScreenWidth() / 2, GetScreenHeight() / 2, 30, RAYWHITE);
-            break;
-        case GameScreen::CREDITS:
-            DrawText("CREDITS", GetScreenWidth() / 2, GetScreenHeight() / 2, 30, RAYWHITE);
-            break;
-        case GameScreen::EXIT:
-            DrawText("EXIT", GetScreenWidth() / 2, GetScreenHeight() / 2, 30, RAYWHITE);
-            break;
-        default:
-            break;
-        }
-
-        EndDrawing();
+        CloseWindow();
     }
-
-    CloseWindow();
 }
 
-void update(Vector2 mouse, SpaceShip& ship, Asteroid bigAsteroids[], Vector2 vectorDirectionAsteroid, Bullet bullets[], bool gameOver, bool pause, int maxBigAsteroids/*, int maxMediumAsteroids, int maxSmallAsteroids*/)
+
+
+void update(Vector2 mouse, 
+    SpaceShip& ship,
+    Asteroid& asteroid,
+    Asteroid asteroids[], 
+    Bullet& bullet,
+    Bullet bullets[], 
+    bool gameOver, 
+    bool& pause, 
+    int maxAsteroids, 
+    int maxBullets, 
+    RectangleButton& rectangleReturn, 
+    RectangleButton& rectangleContinue, 
+    GameScreen& currentScreen,
+    Texture2D Ship)
 {
     if (IsKeyPressed(KEY_ESCAPE))
     {
-        pause = !pause;
+        pause = true;
+        
+    }
+    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && rectangleReturn.isSelected == true && pause)
+    {
+        returnToMenu(currentScreen, ship, Ship, asteroid, asteroids, maxAsteroids, maxBullets, bullet, bullets, pause, gameOver);
+        currentScreen = GameScreen::MENU;
+
+    }
+    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && rectangleContinue.isSelected == true && pause)
+    {
+        cout << "Juego" << endl;
+        pause = false;
     }
 
     if (!gameOver && !pause)
@@ -181,19 +309,24 @@ void update(Vector2 mouse, SpaceShip& ship, Asteroid bigAsteroids[], Vector2 vec
         Vector2 posMouse = mouse;
         Vector2 posShip = getPosition(ship);
         Vector2 vectorDirectionShip = Vector2Subtract(posMouse, posShip);
-
-        for (int i = 0; i < maxBigAsteroids; i++)
+        
+        for (int i = 0; i < maxAsteroids; i++)
         {
-            angleAsteroid = atan2(static_cast<double>(vectorDirectionAsteroid.x), static_cast<double>(vectorDirectionAsteroid.y)) * RAD2DEG;
-            bigAsteroids[i].rotation = static_cast<float>(angleAsteroid);
-            normalizedDirectionAsteroid = static_cast<float>(sqrt(pow(vectorDirectionAsteroid.x, 2) + pow(vectorDirectionAsteroid.y, 2)));
-            bigAsteroids[i].pos.x += (vectorDirectionAsteroid.x / normalizedDirectionAsteroid) * GetFrameTime() * 50;
-            bigAsteroids[i].pos.y += (vectorDirectionAsteroid.y / normalizedDirectionAsteroid) * GetFrameTime() * 50;
+            if (!asteroids[i].isActive && !asteroids[i].isDead && asteroids[i].isBig)
+            {
+                //cout << "Crea el asteroide" << endl;
+                asteroids[i].isActive = true;
+                angleAsteroid = atan2(static_cast<double>(asteroids[i].direction.x), static_cast<double>(asteroids[i].direction.y)) * RAD2DEG;
+                asteroids[i].rotation = static_cast<float>(angleAsteroid);
+            }           
         }
 
-        
-        
-        
+        for (int i = 0; i < maxAsteroids; i++)
+        {
+            normalizedDirectionAsteroid = static_cast<float>(sqrt(pow(asteroids[i].direction.x, 2) + pow(asteroids[i].direction.y, 2)));
+            asteroids[i].pos.x += (asteroids[i].direction.x / normalizedDirectionAsteroid) * GetFrameTime() * 50;
+            asteroids[i].pos.y += (asteroids[i].direction.y / normalizedDirectionAsteroid) * GetFrameTime() * 50;
+        }
 
         if (vectorDirectionShip.x != 0 || vectorDirectionShip.y != 0)
         {
@@ -204,7 +337,7 @@ void update(Vector2 mouse, SpaceShip& ship, Asteroid bigAsteroids[], Vector2 vec
 
         normalizedDirectionShip = static_cast<float>(sqrt(pow(vectorDirectionShip.x, 2) + pow(vectorDirectionShip.y, 2)));
 
-        if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
+        if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT))
         {
             ship.ShipAcceleration.x += (vectorDirectionShip.x / normalizedDirectionShip) * GetFrameTime();
             ship.ShipAcceleration.y += (vectorDirectionShip.y / normalizedDirectionShip) * GetFrameTime();
@@ -213,54 +346,180 @@ void update(Vector2 mouse, SpaceShip& ship, Asteroid bigAsteroids[], Vector2 vec
         ship.pos.x += ship.ShipAcceleration.x * GetFrameTime() * 100;
         ship.pos.y += ship.ShipAcceleration.y * GetFrameTime() * 100;
 
-        if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT))
+        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
         {
-            for (int i = 0; i < maxBullets; i++)
-            {
-                if (bullets[i].isActive)
-                {
-                    bullets[i].pos.x += GetFrameTime() * 100;
-                    bullets[i].pos.y += GetFrameTime() * 100;
+            cout << "Presione" << endl;
+            shoot(bullets, ship, maxBullets);
+        }
 
-                    if (bulletOutofBounds(bullets[i]))
-                    {
-                        bullets[i].isActive = false;
-                    }
-                }
-                if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT))
+
+        for (int i = 0; i < maxBullets; i++)
+        {
+            if (bullets[i].isActive)
+            {
+                bullets[i].velocity = Vector2Scale(bullets[i].direction, bullets[i].speed * GetFrameTime());
+                bullets[i].pos = Vector2Add(bullets[i].pos, bullets[i].velocity);
+
+                if (bulletOutofBounds(bullets[i]))
                 {
-                    bullets[i].isActive = true;
-                    bullets[i].pos = { ship.pos.x, ship.pos.y };
+                    bullets[i].isActive = false;
                 }
+                
             }
         }
 
-        screenCollision(ship, bigAsteroids, maxBigAsteroids);
+        screenCollision(ship, asteroids, maxAsteroids);
+        bulletCollision(bullets, asteroids, maxAsteroids, maxBullets, ship);
+        asteroidDestroyed(asteroids, maxAsteroids);
+       
+        if (gameCollision(ship, asteroids, maxAsteroids))
+        {
+            ship.lives--;
+            initMatch(ship, asteroid, asteroids, maxAsteroids, maxBullets, bullet, bullets);
+        }
 
-        if (gameCollision(ship, bigAsteroids, maxBigAsteroids))
-        {
-            ship.lives--;
-        }
-        /*if (gameCollision(ship, bigAsteroids, maxMediumAsteroids))
-        {
-            ship.lives--;
-        }
-        if (gameCollision(ship, bigAsteroids, maxSmallAsteroids))
-        {
-            ship.lives--;
-        }*/
-        cout << ship.lives << endl;
         if (ship.lives <= 0)
         {
             gameOver = true;
-            DrawText("GAME OVER", GetScreenWidth() / 2, GetScreenHeight() / 2, 40, RAYWHITE);
+            currentScreen = GameScreen::GAMEOVER;
         }
         
     }
     
 }
 
-void drawGame(SpaceShip ship, Asteroid bigAsteroids[],Bullet bullets[], bool pause, int maxBigAsteroids, int maxMediumAsteroids, int maxSmallAsteroids, Texture2D backGround, Texture2D texAsteroid)
+void asteroidDestroyed(Asteroid asteroids[], int maxAsteroid)
+{
+    for (int i = 0; i < maxAsteroid; i++)
+    {
+        if (asteroids[i].isDead && asteroids[i].isBig && asteroids[i].isActive)
+        {
+            asteroids[i].isActive = false;
+            for (int j = 0; j < maxAsteroid; j++) 
+            {
+                if (asteroids[j].isMedium && !asteroids[j].isActive)
+                {
+                    asteroids[j].isActive = true;
+                    asteroids[j].pos = asteroids[i].pos;
+                }
+
+                if (asteroids[j].isMedium && asteroids[j].isDead && asteroids[j].isActive)
+                {
+                    asteroids[j].isActive = false;
+                    for (int l = 0; l < maxAsteroid; l++) 
+                    {
+                        if(asteroids[l].isSmall && !asteroids[l].isActive)
+                        {
+                            asteroids[l].isActive = true;
+                            asteroids[l].pos = asteroids[j].pos;
+                        }
+                    }
+
+                    for (int m = 0; m < maxAsteroid; m++)
+                    {
+                        if (asteroids[m].isSmall && !asteroids[m].isActive)
+                        {
+                            asteroids[m].isActive = true;
+                            asteroids[m].pos = asteroids[j].pos;
+                        }
+                    }
+                }
+            }
+            for (int k = 0; k < maxAsteroid; k++)
+            {
+                if (asteroids[k].isMedium && !asteroids[k].isActive)
+                {
+                    asteroids[k].isActive = true;
+                    asteroids[k].pos = asteroids[i].pos;
+                }
+
+                if (asteroids[k].isMedium && asteroids[k].isDead && asteroids[k].isActive)
+                {
+                    asteroids[k].isActive = false;
+                    for (int n = 0; n < maxAsteroid; n++)
+                    {
+                        if (asteroids[n].isSmall && !asteroids[n].isActive) 
+                        {
+                            asteroids[n].isActive = true;
+                            asteroids[n].pos = asteroids[k].pos;
+                        }
+                    }
+
+                    for (int v = 0; v < maxAsteroid; v++)
+                    {
+                        if (asteroids[v].isSmall && !asteroids[v].isActive)
+                        {
+                            asteroids[v].isActive = true;
+                            asteroids[v].pos = asteroids[k].pos;
+                        }
+                    }
+                }
+            }
+
+            
+        }
+    }
+}
+
+void bulletCollision(Bullet bullets[], Asteroid asteroids[], int maxAsteroids, int maxBullets, SpaceShip& ship)
+{
+    for (int i = 0; i < maxBullets; i++)
+    {
+        for (int j = 0; j < maxAsteroids; j++)
+        {
+            float distX = bullets[i].pos.x - asteroids[j].pos.x;
+            float distY = bullets[i].pos.y - asteroids[j].pos.y;
+            float distance = static_cast<float>(sqrt(pow(distX, 2) + pow(distY, 2)));
+            if (bullets[i].isActive && asteroids[j].isActive)
+            {
+                if (distance <= bullets[i].radius + asteroids[j].radius)
+                {
+                    //cout << "El asteroide esta en falso" << endl;
+                    asteroids[j].isDead = true;
+                    ship.score += 100;
+                }
+            }
+            
+            
+        }
+    }
+}
+
+void shoot(Bullet bullets[], SpaceShip ship, int maxBullets) 
+{
+    for (int i = 0; i < maxBullets; i++)
+    {
+        if (!bullets[i].isActive)
+        {
+            bullets[i].isActive = true;
+            bullets[i].pos = ship.pos;
+            bullets[i].rotation = ship.rotation;
+            bullets[i].direction = Vector2Subtract(GetMousePosition(), ship.pos);
+            float length = Vector2Length(bullets[i].direction);
+            bullets[i].direction = Vector2Divide(bullets[i].direction, { length, length });
+            break;
+        }
+    }
+}
+
+void drawGame(SpaceShip ship, 
+    Asteroid asteroids[],
+    Bullet bullets[], 
+    bool pause, 
+    int maxAsteroids, 
+    Texture2D backGround, 
+    Texture2D texAsteroid, 
+    int maxBullets, 
+    Texture2D livesTex, 
+    Texture2D scoreTex, 
+    Texture2D paused, 
+    RectangleButton& rectangleReturn, 
+    RectangleButton& rectangleContinue, 
+    Texture2D returnButton, 
+    Texture2D returnButtonC, 
+    Texture2D continueButton, 
+    Texture2D continueButtonC, 
+    Vector2& mouse)
 {
     DrawTexturePro(backGround,
         { 0.0f, 0.0f, 1024.0f, 768.0f },
@@ -269,41 +528,140 @@ void drawGame(SpaceShip ship, Asteroid bigAsteroids[],Bullet bullets[], bool pau
         0.0f,
         RAYWHITE);
 
-    maxSmallAsteroids;
-    maxMediumAsteroids;
     if (pause)
     {
-        DrawText("PAUSED", GetScreenWidth() / 2, GetScreenHeight() / 2, 40, RAYWHITE);
+        rectangleReturn.rectangleX = 320;
+        rectangleReturn.rectangleY = 350;
+        rectangleReturn.rectangleWidth = 190;
+        rectangleReturn.rectangleHeight = 50;
+        rectangleContinue.rectangleX = 540;
+        rectangleContinue.rectangleY = 350;
+        rectangleContinue.rectangleWidth = 190;
+        rectangleContinue.rectangleHeight = 50;
+        //DrawRectangle(rectangleReturn.rectangleX, rectangleReturn.rectangleY, rectangleReturn.rectangleWidth, rectangleReturn.rectangleHeight, RAYWHITE);
+        //DrawRectangle(rectangleContinue.rectangleX, rectangleContinue.rectangleY, rectangleContinue.rectangleWidth, rectangleContinue.rectangleHeight, RAYWHITE);
+        DrawTexturePro(paused,
+            { 0.0f, 0.0f, static_cast<float>(paused.width), static_cast<float>(paused.height) },
+            { 420.0f, 280.0f, 200.0f , 50.0f },
+            { 10.0f , 10.0f },
+            0.0f, RAYWHITE);
+        DrawTexturePro(returnButton,
+            { 0.0f, 0.0f, static_cast<float>(returnButton.width), static_cast<float>(returnButton.height) },
+            { static_cast<float>(rectangleReturn.rectangleX) , static_cast<float>(rectangleReturn.rectangleY), static_cast<float>(rectangleReturn.rectangleWidth), static_cast<float>(rectangleReturn.rectangleHeight) },
+            { static_cast<float>(20 / 2), static_cast<float>(10 / 2) },
+            0.0f,
+            RAYWHITE);
+        DrawTexturePro(continueButton,
+            { 0.0f, 0.0f, static_cast<float>(continueButton.width), static_cast<float>(continueButton.height) },
+            { static_cast<float>(rectangleContinue.rectangleX) , static_cast<float>(rectangleContinue.rectangleY), static_cast<float>(rectangleContinue.rectangleWidth), static_cast<float>(rectangleContinue.rectangleHeight) },
+            { static_cast<float>(50 / 2), static_cast<float>(10 / 2) },
+            0.0f,
+            RAYWHITE);
+
+        if (optionsCollision(mouse, rectangleReturn))
+        {
+            rectangleReturn.isSelected = true;
+            DrawTexturePro(returnButtonC,
+                { 0.0f, 0.0f, static_cast<float>(returnButtonC.width), static_cast<float>(returnButtonC.height) },
+                { static_cast<float>(rectangleReturn.rectangleX) , static_cast<float>(rectangleReturn.rectangleY), static_cast<float>(rectangleReturn.rectangleWidth), static_cast<float>(rectangleReturn.rectangleHeight) },
+                { static_cast<float>(20 / 2), static_cast<float>(10 / 2) },
+                0.0f,
+                RAYWHITE);
+            
+        }
+        else if (!optionsCollision(mouse, rectangleReturn))
+        {
+            rectangleReturn.isSelected = false;
+        }
+
+        if (optionsCollision(mouse, rectangleContinue))
+        {
+            rectangleContinue.isSelected = true;
+            DrawTexturePro(continueButtonC,
+                { 0.0f, 0.0f, static_cast<float>(continueButtonC.width), static_cast<float>(continueButtonC.height) },
+                { static_cast<float>(rectangleContinue.rectangleX) , static_cast<float>(rectangleContinue.rectangleY), static_cast<float>(rectangleContinue.rectangleWidth), static_cast<float>(rectangleContinue.rectangleHeight) },
+                { static_cast<float>(50 / 2), static_cast<float>(10 / 2) },
+                0.0f,
+                RAYWHITE);
+
+        }
+        else if (!optionsCollision(mouse, rectangleContinue))
+        {
+            rectangleContinue.isSelected = false;
+        }
     }
 
     for (int i = 0; i < maxBullets; i++)
     {
         if (bullets[i].isActive)
         {
-            cout << "Dibuja" << endl;
+            //cout << "Dibuje bala" << endl;
             DrawCircle(static_cast<int>(bullets[i].pos.x), static_cast<int>(bullets[i].pos.y), bullets[i].radius, WHITE);
         }
     }
-    
 
-    for (int i = 0; i < maxBigAsteroids; i++)
+    for (int i = 0; i < maxAsteroids; i++)
     {
-        DrawCircle(static_cast<int>(bigAsteroids[i].pos.x), static_cast<int>(bigAsteroids[i].pos.y), bigAsteroids[i].radius, RED);
-        DrawTexturePro( texAsteroid, 
-                        { 0.0f, 0.0f, static_cast<float>(texAsteroid.width), static_cast<float>(texAsteroid.height) },
-                        { bigAsteroids[i].pos.x, bigAsteroids[i].pos.y, bigAsteroids[i].size.x, bigAsteroids[i].size.y },
-                        { bigAsteroids[i].size.x / 2, bigAsteroids[i].size.y / 2 },
-                        bigAsteroids[i].rotation,
-                        RAYWHITE);
+        if (asteroids[i].isActive && asteroids[i].isBig)
+        {
+            
+            cout << "Dibuja grande" << endl;
+            DrawCircle(static_cast<int>(asteroids[i].pos.x), static_cast<int>(asteroids[i].pos.y), asteroids[i].radius, RED);
+            asteroids[i].size.x = texAsteroid.width;
+            asteroids[i].size.y = texAsteroid.width;
+            DrawTexturePro(texAsteroid,
+                { 0.0f, 0.0f, static_cast<float>(texAsteroid.width), static_cast<float>(texAsteroid.height) },
+                { asteroids[i].pos.x, asteroids[i].pos.y, asteroids[i].size.x, asteroids[i].size.y },
+                { asteroids[i].size.x / 2, asteroids[i].size.y / 2 },
+                asteroids[i].rotation,
+                RAYWHITE);
+        }
+
+        if (asteroids[i].isActive && asteroids[i].isMedium)
+        {
+            //cout << "Dibuja mediano" << endl;
+            DrawCircle(static_cast<int>(asteroids[i].pos.x), static_cast<int>(asteroids[i].pos.y), asteroids[i].radius, RED);
+            DrawTexturePro(texAsteroid,
+                { 0.0f, 0.0f, static_cast<float>(texAsteroid.width), static_cast<float>(texAsteroid.height) },
+                { asteroids[i].pos.x, asteroids[i].pos.y, asteroids[i].size.x, asteroids[i].size.y },
+                { asteroids[i].size.x / 2, asteroids[i].size.y / 2 },
+                asteroids[i].rotation,
+                RAYWHITE);
+        }
+        
+        if (asteroids[i].isActive && asteroids[i].isSmall)
+        {
+            //cout << "Dibuja chico" << endl;
+            DrawCircle(static_cast<int>(asteroids[i].pos.x), static_cast<int>(asteroids[i].pos.y), asteroids[i].radius, RED);
+            DrawTexturePro(texAsteroid,
+                { 0.0f, 0.0f, static_cast<float>(texAsteroid.width), static_cast<float>(texAsteroid.height) },
+                { asteroids[i].pos.x, asteroids[i].pos.y, asteroids[i].size.x, asteroids[i].size.y },
+                { asteroids[i].size.x / 2, asteroids[i].size.y / 2 },
+                asteroids[i].rotation,
+                RAYWHITE);
+        }
     }
-    /*DrawTexturePro(ship.texShip, { 0.0f, 0.0f,static_cast<float>(ship.texShip.width),
-    static_cast<float>(ship.texShip.height) },
-    { static_cast<float>(ship.pos.x),
-    static_cast<float>(ship.pos.y), static_cast<float>(ship.size.x),
-    static_cast<float>(ship.size.y) }, { static_cast<float>(ship.size.x / 2),
-    static_cast<float>(ship.size.y / 2) }, ship.rotation, RAYWHITE);*/
+
     DrawCircle(static_cast<int>(ship.pos.x), static_cast<int>(ship.pos.y), ship.radius, YELLOW);
     DrawTexturePro(ship.texShip, { 0.0f, 0.0f,static_cast<float>(ship.texShip.width), static_cast<float>(ship.texShip.height) }, { static_cast<float>(ship.pos.x),static_cast<float>(ship.pos.y), static_cast<float>(ship.size.x), static_cast<float>(ship.size.y) }, { static_cast<float>(ship.size.x / 2), static_cast<float>(ship.size.y / 2) }, ship.rotation, RAYWHITE);
+    
+    DrawTexturePro(scoreTex, 
+                    { 0.0f, 0.0f, static_cast<float>(scoreTex.width), static_cast<float>(scoreTex.height) },
+                    { 650.0f, 50.0f, 200.0f , 50.0f},
+                    { 10.0f , 10.0f},
+                    0.0f, RAYWHITE);
+    DrawText(TextFormat("%i", ship.score), 850, 40, 50, PURPLE);
+    DrawTexturePro(livesTex,
+        { 0.0f, 0.0f, static_cast<float>(scoreTex.width), static_cast<float>(scoreTex.height) },
+        { 650.0f, 100.0f, 200.0f , 50.0f },
+        { 10.0f , 10.0f },
+        0.0f, RAYWHITE);
+    DrawText(TextFormat("%i",ship.lives), 850, 95, 50, PURPLE);
+    /*DrawTexturePro(ship.texShip,
+    { 0.0f, 0.0f,static_cast<float>(ship.texShip.width), static_cast<float>(ship.texShip.height) },
+    { static_cast<float>(ship.pos.x),static_cast<float>(ship.pos.y), static_cast<float>(ship.size.x), static_cast<float>(ship.size.y) },
+    { static_cast<float>(ship.size.x / 2), static_cast<float>(ship.size.y / 2) },
+    ship.rotation, RAYWHITE);*/
 }
 
 void PausedGame(bool& pause, RectangleButton rectangleReturn, RectangleButton rectangleContinue)
@@ -318,13 +676,140 @@ void PausedGame(bool& pause, RectangleButton rectangleReturn, RectangleButton re
     }
 }
 
-void returnToMenu(GameScreen& currentScreen)
+void returnToMenu(GameScreen& currentScreen,
+    SpaceShip& ship,
+    Texture2D Ship,
+    Asteroid& asteroid,
+    Asteroid asteroids[],
+    int maxAsteroids,
+    int maxBullets,
+    Bullet& bullet,
+    Bullet bullets[],
+    bool& pause,
+    bool& gameOver)
 {
-
+    resetGame(ship, Ship, asteroid, asteroids, maxAsteroids, maxBullets, bullet, bullets, pause, gameOver);
     currentScreen = GameScreen::MENU;
 }
 
-void resetGame() {}
+void initMatch(SpaceShip& ship,
+    Asteroid& asteroid,
+    Asteroid asteroids[],
+    int maxAsteroids,
+    int maxBullets,
+    Bullet& bullet,
+    Bullet bullets[])
+{
+    ship.pos = { static_cast<float>(GetScreenWidth() / 2) , static_cast<float>(GetScreenHeight() / 2) };
+    ship.size = { 48.0f, 48.0f };
+    ship.origin = { ship.size.x / 2, ship.size.y / 2 };
+    ship.radius = 16.0f;
+    
+
+    for (int i = 0; i < 10; i++)
+    {
+        initAsteroid(asteroid);
+        asteroids[i] = asteroid;
+        asteroids[i].radius = 30.0f;
+        asteroids[i].isBig = true;
+    }
+
+    for (int i = 10; i < 30; i++)
+    {
+        initAsteroid(asteroid);
+        asteroids[i].radius = 15.0f;
+        asteroids[i] = asteroid;
+        asteroids[i].isMedium = true;
+    }
+
+    for (int i = 30; i < 70; i++)
+    {
+        initAsteroid(asteroid);
+        asteroid.radius = 7.5f;
+        asteroids[i] = asteroid;
+        asteroids[i].isSmall = true;
+    }
+
+    for (int i = 0; i < maxAsteroids; i++)
+    {
+        int randEndX = GetRandomValue(1024, 1030);
+        int randEndY = GetRandomValue(768, 770);
+        Vector2 posEnd = { static_cast<float>(randEndX), static_cast<float>(randEndY) };
+        asteroids[i].direction = Vector2Subtract(asteroids[i].pos, posEnd);
+    }
+
+    for (int i = 0; i < maxBullets; i++)
+    {
+        initBullet(bullet);
+        bullets[i] = bullet;
+    }
+}
+
+void initAll(SpaceShip& ship, 
+    Texture2D Ship, 
+    Asteroid& asteroid,
+    Asteroid asteroids[],
+    int maxAsteroids, 
+    int maxBullets,
+    Bullet& bullet,
+    Bullet bullets[])
+{
+    initShip(ship, Ship);
+
+    for (int i = 0; i < 10; i++)
+    {
+        initAsteroid(asteroid);
+        asteroids[i] = asteroid;
+        asteroids[i].radius = 30.0f;
+        asteroids[i].isBig = true;
+    }
+
+    for (int i = 10; i < 30; i++)
+    {
+        initAsteroid(asteroid);
+        asteroids[i].radius = 15.0f;
+        asteroids[i] = asteroid;
+        asteroids[i].isMedium = true;
+    }
+
+    for (int i = 30; i < 70; i++)
+    {
+        initAsteroid(asteroid);
+        asteroid.radius = 7.5f;
+        asteroids[i] = asteroid;
+        asteroids[i].isSmall = true;
+    }
+
+    for (int i = 0; i < maxAsteroids; i++)
+    {
+        int randEndX = GetRandomValue(1024, 1030);
+        int randEndY = GetRandomValue(768, 770);
+        Vector2 posEnd = { static_cast<float>(randEndX), static_cast<float>(randEndY) };
+        asteroids[i].direction = Vector2Subtract(asteroids[i].pos, posEnd);
+    }
+
+    for (int i = 0; i < maxBullets; i++)
+    {
+        initBullet(bullet);
+        bullets[i] = bullet;
+    }
+}
+
+void resetGame(SpaceShip& ship,
+    Texture2D Ship,
+    Asteroid& asteroid,
+    Asteroid asteroids[],
+    int maxAsteroids,
+    int maxBullets,
+    Bullet& bullet,
+    Bullet bullets[], 
+    bool& pause,
+    bool& gameOver)
+{
+    pause = false;
+    gameOver = false;
+    initAll(ship, Ship, asteroid, asteroids, maxAsteroids, maxBullets, bullet, bullets);
+}
 
 bool gameCollision(SpaceShip& ship, Asteroid asteroids[], int maxAsteroids)
 {

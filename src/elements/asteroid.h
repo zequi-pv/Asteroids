@@ -7,8 +7,12 @@ struct Asteroid
 	Vector2 size;
 	float radius;
 	float rotation;
+	bool isActive;
+	bool isDead;
+	bool isBig;
+	bool isMedium;
+	bool isSmall;
+	Vector2 direction;
 };
 
 void initAsteroid(Asteroid& asteroid);
-void initMedAsteroid(Asteroid& asteroid);
-void initSmallAsteroid(Asteroid& asteroid);

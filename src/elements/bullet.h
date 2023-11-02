@@ -5,9 +5,12 @@ struct Bullet
 {
 	Vector2 pos;
 	Vector2 size;
-	Vector2 speed;
+	float speed;
+	Vector2 direction;
+	Vector2 velocity;
 	float radius;
 	float rotation;
+	int lifeSpawn;
 	bool isActive;
 };
 

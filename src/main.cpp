@@ -1,7 +1,6 @@
-#include <iostream>
 #include "gameData/game.h"
 
-using namespace std;
+using namespace game;
 
 int main(void)
 {
