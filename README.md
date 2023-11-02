@@ -3,7 +3,7 @@
 ## About the project
 This is the respository that follows the development of this game for my class at Image Campus
 
-contact: ezequielprietovaldez@gmail.com
+Contact: ezequielprietovaldez@gmail.com
 
 ## About the game
 For people who might not know Asteroids, it's a game where you control a spaceship and you have to destroy all the asteroids before you crash.
