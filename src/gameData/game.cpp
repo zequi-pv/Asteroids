@@ -785,14 +785,18 @@ bool gameCollision(SpaceShip& ship, Asteroid asteroids[], int maxAsteroids)
 {
     for (int i = 0; i < maxAsteroids; i++)
     {
-        float distX = ship.pos.x - asteroids[i].pos.x;
-        float distY = ship.pos.y - asteroids[i].pos.y;
-        float distance = static_cast<float>(sqrt(pow(distX, 2) + pow(distY, 2)));
-
-        if (distance <= ship.radius + asteroids[i].radius)
+        if (!asteroids[i].isDead && asteroids[i].isActive)
         {
-            return true;
+            float distX = ship.pos.x - asteroids[i].pos.x;
+            float distY = ship.pos.y - asteroids[i].pos.y;
+            float distance = static_cast<float>(sqrt(pow(distX, 2) + pow(distY, 2)));
+
+            if (distance <= ship.radius + asteroids[i].radius)
+            {
+                return true;
+            }
         }
+        
     }
     return false;
 }
