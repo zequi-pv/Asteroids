@@ -378,6 +378,24 @@ void update(Vector2 mouse,
             initMatch(ship, asteroid, asteroids, maxAsteroids, maxBullets, bullet, bullets);
         }
 
+<<<<<<< HEAD
+=======
+        if (gameCollision(ship, bigAsteroids, maxBigAsteroids))
+        {
+            ship.lives--;
+            ship.pos.x = static_cast<float>(GetScreenWidth() / 2);
+            ship.pos.y = static_cast<float>(GetScreenHeight() / 2);
+        }
+        /*if (gameCollision(ship, bigAsteroids, maxMediumAsteroids))
+        {
+            ship.lives--;
+        }
+        if (gameCollision(ship, bigAsteroids, maxSmallAsteroids))
+        {
+            ship.lives--;
+        }*/
+        cout << ship.lives << endl;
+>>>>>>> 40454b2c4402b13613766286703a1195bc1b5e30
         if (ship.lives <= 0)
         {
             gameOver = true;
