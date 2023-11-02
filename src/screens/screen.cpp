@@ -26,22 +26,18 @@ void drawMenu(	RectangleButton& rectanglePlay,
 					{ 0.0f, 0.0f },
 					0.0f,
 					RAYWHITE);
-	/*DrawTexturePro(ship.texShip,
-	{ 0.0f, 0.0f,static_cast<float>(ship.texShip.width), static_cast<float>(ship.texShip.height) }, 
-	{ static_cast<float>(ship.pos.x),static_cast<float>(ship.pos.y), static_cast<float>(ship.size.x), static_cast<float>(ship.size.y) }, 
-	{ static_cast<float>(ship.size.x / 2), static_cast<float>(ship.size.y / 2) }, 
-	ship.rotation, RAYWHITE);*/
+	
 	rectanglePlay.rectangleY = 270;
-	//DrawRectangle(rectanglePlay.rectangleX, rectanglePlay.rectangleY = 270, rectanglePlay.rectangleWidth, rectanglePlay.rectangleHeight, GRAY);
+
 	DrawTexturePro(playButton,
 		{ 0.0f, 0.0f, static_cast<float>(playButton.width), static_cast<float>(playButton.height) },
 		{ static_cast<float>(rectanglePlay.rectangleX) , static_cast<float>(rectanglePlay.rectangleY), static_cast<float>(rectanglePlay.rectangleWidth), static_cast<float>(rectanglePlay.rectangleHeight) },
 		{ static_cast<float>(30 / 2), static_cast<float>(10 / 2) },
 		0.0f,
 		RAYWHITE);
-	//DrawText("Play", 400, 270, 40, BLACK);
+	
 	rectangleRules.rectangleY = 340;
-	//DrawRectangle(rectangleRules.rectangleX , rectangleRules.rectangleY = 340, rectangleRules.rectangleWidth, rectangleRules.rectangleHeight, GRAY);
+	
 	DrawTexturePro(rulesButton,
 		{ 0.0f, 0.0f, static_cast<float>(rulesButton.width), static_cast<float>(rulesButton.height) },
 		{ static_cast<float>(rectangleRules.rectangleX) , static_cast<float>(rectangleRules.rectangleY), static_cast<float>(rectangleRules.rectangleWidth), static_cast<float>(rectangleRules.rectangleHeight) },
@@ -57,16 +53,16 @@ void drawMenu(	RectangleButton& rectanglePlay,
 		{ static_cast<float>(30 / 2), static_cast<float>(20 / 2) },
 		0.0f,
 		RAYWHITE);
-	//DrawText("Credits", 400, 410, 40, BLACK);
+
 	rectangleExit.rectangleY = 480;
-	//DrawRectangle(rectangleExit.rectangleX, rectangleExit.rectangleY = 480, rectangleExit.rectangleWidth, rectangleExit.rectangleHeight, GRAY);
+
 	DrawTexturePro(exitButton,
 		{ 0.0f, 0.0f, static_cast<float>(exitButton.width), static_cast<float>(exitButton.height) },
 		{ static_cast<float>(rectangleExit.rectangleX) , static_cast<float>(rectangleExit.rectangleY), static_cast<float>(rectangleExit.rectangleWidth), static_cast<float>(rectangleExit.rectangleHeight) },
 		{ static_cast<float>(30 / 2), static_cast<float>(20 / 2) },
 		0.0f,
 		RAYWHITE);
-	//DrawText("Exit", 400, 480, 40, BLACK);
+
 
 	if (optionsCollision(mouse, rectanglePlay) )
 	{
@@ -77,7 +73,7 @@ void drawMenu(	RectangleButton& rectanglePlay,
 			{ static_cast<float>(30 / 2), static_cast<float>(10 / 2) },
 			0.0f,
 			RAYWHITE);
-		//DrawText("Play", 400, 270, 40, RED);
+
 	}
 	else if (!optionsCollision(mouse, rectanglePlay))
 	{
@@ -93,7 +89,7 @@ void drawMenu(	RectangleButton& rectanglePlay,
 			{ static_cast<float>(30 / 2), static_cast<float>(15 / 2) },
 			0.0f,
 			RAYWHITE);
-		//DrawText("Rules", 400, 340, 40, RED);
+
 	}
 	else if (!optionsCollision(mouse, rectangleRules))
 	{
@@ -215,7 +211,6 @@ void drawCredits(RectangleButton& rectangleReturn,
 	github.rectangleWidth = 70;
 	github.rectangleHeight = 65;
 	
-	//Boton 1
 
 	DrawTexturePro(itchB,
 		{ 0.0f, 0.0f, static_cast<float>(itchB.width), static_cast<float>(itchB.height) },
@@ -358,8 +353,7 @@ void drawGameOver(RectangleButton& rectangleReturn, RectangleButton& rectangleCo
 	rectangleContinue.rectangleY = 530;
 	rectangleContinue.rectangleWidth = 190;
 	rectangleContinue.rectangleHeight = 50;
-	//DrawRectangle(rectangleReturn.rectangleX, rectangleReturn.rectangleY, rectangleReturn.rectangleWidth, rectangleReturn.rectangleHeight, RAYWHITE);
-	//DrawRectangle(rectangleContinue.rectangleX, rectangleContinue.rectangleY, rectangleContinue.rectangleWidth, rectangleContinue.rectangleHeight, RAYWHITE);
+
 	DrawTexturePro(returnButton,
 		{ 0.0f, 0.0f, static_cast<float>(returnButton.width), static_cast<float>(returnButton.height) },
 		{ static_cast<float>(rectangleReturn.rectangleX) , static_cast<float>(rectangleReturn.rectangleY), static_cast<float>(rectangleReturn.rectangleWidth), static_cast<float>(rectangleReturn.rectangleHeight) },
@@ -428,8 +422,7 @@ void drawGameWin(RectangleButton& rectangleReturn, RectangleButton& rectangleCon
 	rectangleContinue.rectangleY = 530;
 	rectangleContinue.rectangleWidth = 190;
 	rectangleContinue.rectangleHeight = 50;
-	//DrawRectangle(rectangleReturn.rectangleX, rectangleReturn.rectangleY, rectangleReturn.rectangleWidth, rectangleReturn.rectangleHeight, RAYWHITE);
-	//DrawRectangle(rectangleContinue.rectangleX, rectangleContinue.rectangleY, rectangleContinue.rectangleWidth, rectangleContinue.rectangleHeight, RAYWHITE);
+
 	DrawTexturePro(returnButton,
 		{ 0.0f, 0.0f, static_cast<float>(returnButton.width), static_cast<float>(returnButton.height) },
 		{ static_cast<float>(rectangleReturn.rectangleX) , static_cast<float>(rectangleReturn.rectangleY), static_cast<float>(rectangleReturn.rectangleWidth), static_cast<float>(rectangleReturn.rectangleHeight) },

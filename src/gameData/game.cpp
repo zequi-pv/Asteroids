@@ -31,7 +31,6 @@ static void screenCollision(SpaceShip& ship, Asteroid asteroids[], int maxAstero
 static bool gameCollision(SpaceShip& ship, Asteroid asteroids[], int maxAsteroids);
 static void shoot(Bullet bullets[], SpaceShip ship, int maxBullets);
 static void bulletCollision(Bullet bullets[], Asteroid asteroids[], int maxAsteroids, int maxBullets, SpaceShip& ship);
-static void asteroidDestroyed(Asteroid asteroids[], int maxAsteroid);
 static void initAll(SpaceShip& ship,
     Texture2D Ship,
     Asteroid& asteroid,
@@ -314,7 +313,6 @@ void update(Vector2 mouse,
         {
             if (!asteroids[i].isActive && !asteroids[i].isDead && asteroids[i].isBig)
             {
-                //cout << "Crea el asteroide" << endl;
                 asteroids[i].isActive = true;
                 angleAsteroid = atan2(static_cast<double>(asteroids[i].direction.x), static_cast<double>(asteroids[i].direction.y)) * RAD2DEG;
                 asteroids[i].rotation = static_cast<float>(angleAsteroid);
@@ -348,7 +346,6 @@ void update(Vector2 mouse,
 
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
         {
-            cout << "Presione" << endl;
             shoot(bullets, ship, maxBullets);
         }
 
@@ -370,7 +367,6 @@ void update(Vector2 mouse,
 
         screenCollision(ship, asteroids, maxAsteroids);
         bulletCollision(bullets, asteroids, maxAsteroids, maxBullets, ship);
-        asteroidDestroyed(asteroids, maxAsteroids);
        
         if (gameCollision(ship, asteroids, maxAsteroids))
         {
@@ -384,81 +380,15 @@ void update(Vector2 mouse,
             currentScreen = GameScreen::GAMEOVER;
         }
         
+       
+            if (ship.destroyedAsteroids == 70) 
+            {
+                gameOver = true;
+                currentScreen = GameScreen::GAMEWIN;
+            }
+        
     }
     
-}
-
-void asteroidDestroyed(Asteroid asteroids[], int maxAsteroid)
-{
-    for (int i = 0; i < maxAsteroid; i++)
-    {
-        if (asteroids[i].isDead && asteroids[i].isBig && asteroids[i].isActive)
-        {
-            asteroids[i].isActive = false;
-            for (int j = 0; j < maxAsteroid; j++) 
-            {
-                if (asteroids[j].isMedium && !asteroids[j].isActive)
-                {
-                    asteroids[j].isActive = true;
-                    asteroids[j].pos = asteroids[i].pos;
-                }
-
-                if (asteroids[j].isMedium && asteroids[j].isDead && asteroids[j].isActive)
-                {
-                    asteroids[j].isActive = false;
-                    for (int l = 0; l < maxAsteroid; l++) 
-                    {
-                        if(asteroids[l].isSmall && !asteroids[l].isActive)
-                        {
-                            asteroids[l].isActive = true;
-                            asteroids[l].pos = asteroids[j].pos;
-                        }
-                    }
-
-                    for (int m = 0; m < maxAsteroid; m++)
-                    {
-                        if (asteroids[m].isSmall && !asteroids[m].isActive)
-                        {
-                            asteroids[m].isActive = true;
-                            asteroids[m].pos = asteroids[j].pos;
-                        }
-                    }
-                }
-            }
-            for (int k = 0; k < maxAsteroid; k++)
-            {
-                if (asteroids[k].isMedium && !asteroids[k].isActive)
-                {
-                    asteroids[k].isActive = true;
-                    asteroids[k].pos = asteroids[i].pos;
-                }
-
-                if (asteroids[k].isMedium && asteroids[k].isDead && asteroids[k].isActive)
-                {
-                    asteroids[k].isActive = false;
-                    for (int n = 0; n < maxAsteroid; n++)
-                    {
-                        if (asteroids[n].isSmall && !asteroids[n].isActive) 
-                        {
-                            asteroids[n].isActive = true;
-                            asteroids[n].pos = asteroids[k].pos;
-                        }
-                    }
-
-                    for (int v = 0; v < maxAsteroid; v++)
-                    {
-                        if (asteroids[v].isSmall && !asteroids[v].isActive)
-                        {
-                            asteroids[v].isActive = true;
-                            asteroids[v].pos = asteroids[k].pos;
-                        }
-                    }
-                }
-            }
-
-            
-        }
-    }
 }
 
 void bulletCollision(Bullet bullets[], Asteroid asteroids[], int maxAsteroids, int maxBullets, SpaceShip& ship)
@@ -474,13 +404,62 @@ void bulletCollision(Bullet bullets[], Asteroid asteroids[], int maxAsteroids, i
             {
                 if (distance <= bullets[i].radius + asteroids[j].radius)
                 {
-                    //cout << "El asteroide esta en falso" << endl;
                     asteroids[j].isDead = true;
+                    asteroids[j].isActive = false;
                     ship.score += 100;
+                    ship.destroyedAsteroids++;
+                    int counter = 0;
+
+                    if (asteroids[j].isBig)
+                    {
+                        for (int k = 0; k < maxAsteroids; k++)
+                        {
+                            if (!asteroids[k].isActive)
+                            {
+                                asteroids[k].isActive = true;
+                                asteroids[k].isDead = false;
+                                asteroids[k].pos = asteroids[j].pos;
+                                asteroids[k].isBig = false;
+                                asteroids[k].isMedium = true;
+                                asteroids[k].isSmall = false;
+
+                                counter++;
+
+                                if (counter == 2)
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    else if (asteroids[j].isMedium)
+                    {
+                        for (int k = 0; k < maxAsteroids; k++)
+                        {
+                            if (!asteroids[k].isActive)
+                            {
+                                asteroids[k].isActive = true;
+                                asteroids[k].isDead = false;
+                                asteroids[k].pos = asteroids[j].pos;
+                                asteroids[k].isBig = false;
+                                asteroids[k].isMedium = false;
+                                asteroids[k].isSmall = true;
+
+                                counter++;
+
+                                if (counter == 2)
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+
                 }
             }
-            
-            
+
+
         }
     }
 }
@@ -604,11 +583,8 @@ void drawGame(SpaceShip ship,
     {
         if (asteroids[i].isActive && asteroids[i].isBig)
         {
-            
-            cout << "Dibuja grande" << endl;
-            DrawCircle(static_cast<int>(asteroids[i].pos.x), static_cast<int>(asteroids[i].pos.y), asteroids[i].radius, RED);
-            asteroids[i].size.x = texAsteroid.width;
-            asteroids[i].size.y = texAsteroid.width;
+            asteroids[i].size.x = static_cast<float>(texAsteroid.width);
+            asteroids[i].size.y = static_cast<float>(texAsteroid.width);
             DrawTexturePro(texAsteroid,
                 { 0.0f, 0.0f, static_cast<float>(texAsteroid.width), static_cast<float>(texAsteroid.height) },
                 { asteroids[i].pos.x, asteroids[i].pos.y, asteroids[i].size.x, asteroids[i].size.y },
@@ -619,7 +595,8 @@ void drawGame(SpaceShip ship,
 
         if (asteroids[i].isActive && asteroids[i].isMedium)
         {
-            //cout << "Dibuja mediano" << endl;
+            asteroids[i].size.x = static_cast<float>(texAsteroid.width / 2);
+            asteroids[i].size.y = static_cast<float>(texAsteroid.width / 2);
             DrawCircle(static_cast<int>(asteroids[i].pos.x), static_cast<int>(asteroids[i].pos.y), asteroids[i].radius, RED);
             DrawTexturePro(texAsteroid,
                 { 0.0f, 0.0f, static_cast<float>(texAsteroid.width), static_cast<float>(texAsteroid.height) },
@@ -631,7 +608,8 @@ void drawGame(SpaceShip ship,
         
         if (asteroids[i].isActive && asteroids[i].isSmall)
         {
-            //cout << "Dibuja chico" << endl;
+            asteroids[i].size.x = static_cast<float>(texAsteroid.width / 4);
+            asteroids[i].size.y = static_cast<float>(texAsteroid.width / 4);
             DrawCircle(static_cast<int>(asteroids[i].pos.x), static_cast<int>(asteroids[i].pos.y), asteroids[i].radius, RED);
             DrawTexturePro(texAsteroid,
                 { 0.0f, 0.0f, static_cast<float>(texAsteroid.width), static_cast<float>(texAsteroid.height) },
@@ -657,11 +635,6 @@ void drawGame(SpaceShip ship,
         { 10.0f , 10.0f },
         0.0f, RAYWHITE);
     DrawText(TextFormat("%i",ship.lives), 850, 95, 50, PURPLE);
-    /*DrawTexturePro(ship.texShip,
-    { 0.0f, 0.0f,static_cast<float>(ship.texShip.width), static_cast<float>(ship.texShip.height) },
-    { static_cast<float>(ship.pos.x),static_cast<float>(ship.pos.y), static_cast<float>(ship.size.x), static_cast<float>(ship.size.y) },
-    { static_cast<float>(ship.size.x / 2), static_cast<float>(ship.size.y / 2) },
-    ship.rotation, RAYWHITE);*/
 }
 
 void PausedGame(bool& pause, RectangleButton rectangleReturn, RectangleButton rectangleContinue)
@@ -717,7 +690,7 @@ void initMatch(SpaceShip& ship,
     for (int i = 10; i < 30; i++)
     {
         initAsteroid(asteroid);
-        asteroids[i].radius = 15.0f;
+        asteroids[i].radius = 17.0f;
         asteroids[i] = asteroid;
         asteroids[i].isMedium = true;
     }

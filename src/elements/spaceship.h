@@ -12,6 +12,7 @@ struct SpaceShip
 	Texture2D texShip;
 	int lives;
 	int score;
+	int destroyedAsteroids;
 };
 
 void initShip(SpaceShip& ship, Texture2D texShip);
